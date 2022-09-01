@@ -10,6 +10,9 @@ from utils import *
 app = Flask(__name__)
 hops: hs.HopsFlask = hs.Hops(app)
 
+@app.route('/')
+def index():
+    return 'Hello World!'
 
 @hops.component(
     "/dt_to_df",
