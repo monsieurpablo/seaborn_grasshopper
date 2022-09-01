@@ -7,7 +7,10 @@ import os
 def base64img():
     # https://stackoverflow.com/questions/37225035/serialize-in-json-a-base64-encoded-data
     my_stringIObytes = io.BytesIO()
+    
     plt.savefig(my_stringIObytes, format='jpg')
+    plt.close()
+    
     my_stringIObytes.seek(0)
     img_data_bytes = base64.b64encode(my_stringIObytes.read())
     img_data_string = img_data_bytes.decode('utf-8')
