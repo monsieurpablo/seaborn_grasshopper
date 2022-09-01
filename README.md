@@ -2,7 +2,7 @@
 A rhino remote library that brings Seaborn (Matplotlib) inside of Grasshopper using [Hops](https://github.com/mcneel/compute.rhino3d/tree/master/src/ghhops-server-py). 
 Based on the initial release of [Hops_plots](https://github.com/MaesAntoine/Hops_plots) by MaesAntoine. 
 
-For implementation brings the following enhancements:
+This implementation brings the following enhancements:
 - Ready for web deployment using Heroku and gunicorn
 - Export image as a encoded b64 string
 - Style improvement
