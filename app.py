@@ -582,5 +582,8 @@ def count_df(csv_df1: str, x_ax, g_hue='', g_dodge=True, g_palette="deep", plot:
 
 
 if __name__ == "__main__":
-    app.run(debug=False)
+    # app.run(debug=False)
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host='0.0.0.0', port=port, debug=False)
+    
     # app.run(host="0.0.0.0", port= 5000, debug=False)
