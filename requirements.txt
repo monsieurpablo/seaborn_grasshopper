@@ -1,0 +1,6 @@
+Flask==2.2.2
+ghhops_server==1.5.3
+matplotlib==3.5.3
+pandas==1.4.4
+seaborn==0.11.2
+gunicorn==20.1.0
