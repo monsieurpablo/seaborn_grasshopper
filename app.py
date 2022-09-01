@@ -112,13 +112,15 @@ def available_presets(plot_type='categorical', palette_type='default'):
                                       "\nDefault = 'deep'"),
         hs.HopsBoolean("Plot", "P", "Plot me!")
     ],
-    outputs=[]
+    outputs=[
+        hs.HopsString("Base64 png", "img_str", "Image as base64 bitmap."),
+    ]
 )
 def rel_df(csv_df1: str, x_ax, y_ax, g_hue, g_palette="deep", plot=False):
     # load csv to df
     the_dataframe = csv_to_df(csv_df1)
     if plot:
-        all_graphs.no_default(the_dataframe, x_ax, y_ax, g_hue, g_palette)
+        return all_graphs.no_default(the_dataframe, x_ax, y_ax, g_hue, g_palette)
 
 
 # ---------------------------------
@@ -140,13 +142,15 @@ def rel_df(csv_df1: str, x_ax, y_ax, g_hue, g_palette="deep", plot=False):
                                       "\nDefault = 'deep'"),
         hs.HopsBoolean("Plot", "P", "Plot me!")
     ],
-    outputs=[]
+    outputs=[
+        hs.HopsString("Base64 png", "img_str", "Image as base64 bitmap."),
+    ]
 )
 def rel_df(csv_df1: str, x_ax, y_ax, g_hue='', g_palette="deep", plot: bool = False):
     # load csv to df
     the_dataframe = csv_to_df(csv_df1)
     if plot:
-        all_graphs.rel(the_dataframe, x_ax, y_ax, g_hue, g_palette)
+        return all_graphs.rel(the_dataframe, x_ax, y_ax, g_hue, g_palette)
 
 
 @hops.component(
@@ -164,13 +168,15 @@ def rel_df(csv_df1: str, x_ax, y_ax, g_hue='', g_palette="deep", plot: bool = Fa
                                       "\nDefault = 'deep'"),
         hs.HopsBoolean("Plot", "P", "Plot me!")
     ],
-    outputs=[]
+    outputs=[
+        hs.HopsString("Base64 png", "img_str", "Image as base64 bitmap."),
+    ]
 )
 def scatter_df(csv_df1: str, x_ax, y_ax, g_hue='', g_palette="deep", plot: bool = False):
     # load csv to df
     the_dataframe = csv_to_df(csv_df1)
     if plot:
-        all_graphs.scatter(the_dataframe, x_ax, y_ax, g_hue, g_palette)
+        return all_graphs.scatter(the_dataframe, x_ax, y_ax, g_hue, g_palette)
 
 
 @hops.component(
@@ -188,13 +194,15 @@ def scatter_df(csv_df1: str, x_ax, y_ax, g_hue='', g_palette="deep", plot: bool 
                                       "\nDefault = 'deep'"),
         hs.HopsBoolean("Plot", "P", "Plot me!")
     ],
-    outputs=[]
+    outputs=[
+        hs.HopsString("Base64 png", "img_str", "Image as base64 bitmap."),
+    ]
 )
 def line_df(csv_df1: str, x_ax, y_ax, g_hue='', g_palette="deep", plot: bool = False):
     # load csv to df
     the_dataframe = csv_to_df(csv_df1)
     if plot:
-        all_graphs.line(the_dataframe, x_ax, y_ax, g_hue, g_palette)
+        return all_graphs.line(the_dataframe, x_ax, y_ax, g_hue, g_palette)
 
 
 # -------------------------------------------------
@@ -220,14 +228,16 @@ def line_df(csv_df1: str, x_ax, y_ax, g_hue='', g_palette="deep", plot: bool = F
                                       "\nDefault = 'deep'"),
         hs.HopsBoolean("Plot", "P", "Plot me!")
     ],
-    outputs=[]
+    outputs=[
+        hs.HopsString("Base64 png", "img_str", "Image as base64 bitmap."),
+    ]
 )
 def dis_df(csv_df1: str, x_ax, y_ax='', g_hue='', g_kind='hist', g_rug=False, g_legend=True, g_palette="deep",
            plot: bool = False):
     # load csv to df
     the_dataframe = csv_to_df(csv_df1)
     if plot:
-        all_graphs.dis(the_dataframe, x_ax, y_ax, g_hue, g_kind, g_rug, g_legend, g_palette)
+        return all_graphs.dis(the_dataframe, x_ax, y_ax, g_hue, g_kind, g_rug, g_legend, g_palette)
 
 
 @hops.component(
@@ -261,7 +271,9 @@ def dis_df(csv_df1: str, x_ax, y_ax='', g_hue='', g_kind='hist', g_rug=False, g_
                                       "\nDefault = 'deep'"),
         hs.HopsBoolean("Plot", "P", "Plot me!")
     ],
-    outputs=[]
+    outputs=[
+        hs.HopsString("Base64 png", "img_str", "Image as base64 bitmap."),
+    ]
 )
 def hist_df(csv_df1: str, x_ax, y_ax='', g_hue='', g_stat='count', g_cumulative=False, g_multiple='layer',
             g_element='bars', g_fill=True, g_shrink=1, g_kde=False, g_legend=True, g_palette="deep",
@@ -269,7 +281,7 @@ def hist_df(csv_df1: str, x_ax, y_ax='', g_hue='', g_stat='count', g_cumulative=
     # load csv to df
     the_dataframe = csv_to_df(csv_df1)
     if plot:
-        all_graphs.hist(the_dataframe, x_ax, y_ax, g_hue, g_stat, g_cumulative, g_multiple, g_element, g_fill, g_shrink,
+        return all_graphs.hist(the_dataframe, x_ax, y_ax, g_hue, g_stat, g_cumulative, g_multiple, g_element, g_fill, g_shrink,
                         g_kde, g_legend, g_palette)
 
 
@@ -309,7 +321,9 @@ def hist_df(csv_df1: str, x_ax, y_ax='', g_hue='', g_stat='count', g_cumulative=
                                       "\nDefault = 'deep'"),
         hs.HopsBoolean("Plot", "P", "Plot me!")
     ],
-    outputs=[]
+    outputs=[
+        hs.HopsString("Base64 png", "img_str", "Image as base64 bitmap."),
+    ]
 )
 def kde_df(csv_df1: str, x_ax, y_ax='', g_hue='', g_cut=3, g_cumulative=False, g_multiple='layer', g_common_norm=True,
            g_common_grid=False, g_levels=10, g_thresh=0.05, g_alpha=1, g_fill=False, g_legend=True,
@@ -317,7 +331,7 @@ def kde_df(csv_df1: str, x_ax, y_ax='', g_hue='', g_cut=3, g_cumulative=False, g
     # load csv to df
     the_dataframe = csv_to_df(csv_df1)
     if plot:
-        all_graphs.kde(the_dataframe, x_ax, y_ax, g_hue, g_cut, g_cumulative, g_multiple, g_common_norm, g_common_grid,
+        return all_graphs.kde(the_dataframe, x_ax, y_ax, g_hue, g_cut, g_cumulative, g_multiple, g_common_norm, g_common_grid,
                        g_levels, g_thresh, g_alpha, g_fill, g_legend, g_palette)
 
 
@@ -347,14 +361,16 @@ def kde_df(csv_df1: str, x_ax, y_ax='', g_hue='', g_cut=3, g_cumulative=False, g
                                       "\nDefault = 'deep'"),
         hs.HopsBoolean("Plot", "P", "Plot me!")
     ],
-    outputs=[]
+    outputs=[
+        hs.HopsString("Base64 png", "img_str", "Image as base64 bitmap."),
+    ]
 )
 def cat_df(csv_df1: str, x_ax, y_ax, g_hue='', g_ci="None", g_seed=2, g_kind="strip", g_palette="deep",
            plot: bool = False):
     # load csv to df
     the_dataframe = csv_to_df(csv_df1)
     if plot:
-        all_graphs.cat(the_dataframe, x_ax, y_ax, g_hue, g_ci, g_seed, g_kind, g_palette)
+        return all_graphs.cat(the_dataframe, x_ax, y_ax, g_hue, g_ci, g_seed, g_kind, g_palette)
 
 
 @hops.component(
@@ -374,13 +390,15 @@ def cat_df(csv_df1: str, x_ax, y_ax, g_hue='', g_ci="None", g_seed=2, g_kind="st
         hs.HopsNumber("Size", "s", "Radius of the markers, in points"),
         hs.HopsBoolean("Plot", "P", "Plot me!")
     ],
-    outputs=[]
+    outputs=[
+        hs.HopsString("Base64 png", "img_str", "Image as base64 bitmap."),
+    ]
 )
 def strip_df(csv_df1: str, x_ax, y_ax, g_hue='', g_jitter=True, g_palette="deep", g_size=2, plot: bool = False):
     # load csv to df
     the_dataframe = csv_to_df(csv_df1)
     if plot:
-        all_graphs.strip(the_dataframe, x_ax, y_ax, g_hue, g_jitter, g_palette, g_size)
+        return all_graphs.strip(the_dataframe, x_ax, y_ax, g_hue, g_jitter, g_palette, g_size)
 
 
 @hops.component(
@@ -401,13 +419,15 @@ def strip_df(csv_df1: str, x_ax, y_ax, g_hue='', g_jitter=True, g_palette="deep"
         hs.HopsNumber("Size", "s", "Radius of the markers, in points"),
         hs.HopsBoolean("Plot", "P", "Plot me!")
     ],
-    outputs=[]
+    outputs=[
+        hs.HopsString("Base64 png", "img_str", "Image as base64 bitmap."),
+    ]
 )
 def swarm_df(csv_df1: str, x_ax, y_ax, g_hue='', g_dodge=False, g_palette="deep", g_size=2, plot: bool = False):
     # load csv to df
     the_dataframe = csv_to_df(csv_df1)
     if plot:
-        all_graphs.swarm(the_dataframe, x_ax, y_ax, g_hue, g_dodge, g_palette, g_size)
+        return all_graphs.swarm(the_dataframe, x_ax, y_ax, g_hue, g_dodge, g_palette, g_size)
 
 
 @hops.component(
@@ -426,7 +446,7 @@ def swarm_df(csv_df1: str, x_ax, y_ax, g_hue='', g_dodge=False, g_palette="deep"
         hs.HopsBoolean("Plot", "P", "Plot me!")
     ],
     outputs=[
-        hs.HopsString("Base64 jpg", "b64", "Image as base64 bitmap."),
+        hs.HopsString("Base64 png", "img_str", "Image as base64 bitmap."),
     ]
 )
 def box_df(csv_df1: str, x_ax, y_ax, g_hue='', g_palette="deep", plot: bool = False):
@@ -460,14 +480,16 @@ def box_df(csv_df1: str, x_ax, y_ax, g_hue='', g_palette="deep", plot: bool = Fa
                                       "\nDefault = 'deep'"),
         hs.HopsBoolean("Plot", "P", "Plot me!")
     ],
-    outputs=[]
+    outputs=[
+        hs.HopsString("Base64 png", "img_str", "Image as base64 bitmap."),
+    ]
 )
 def violin_df(csv_df1: str, x_ax, y_ax, g_hue='', g_bw=1, g_inner="box", g_split=False, g_dodge=True, g_palette="deep",
               plot: bool = False):
     # load csv to df
     the_dataframe = csv_to_df(csv_df1)
     if plot:
-        all_graphs.violin(the_dataframe, x_ax, y_ax, g_hue, g_bw, g_inner, g_split, g_dodge, g_palette)
+        return all_graphs.violin(the_dataframe, x_ax, y_ax, g_hue, g_bw, g_inner, g_split, g_dodge, g_palette)
 
 
 @hops.component(
@@ -491,14 +513,16 @@ def violin_df(csv_df1: str, x_ax, y_ax, g_hue='', g_bw=1, g_inner="box", g_split
         hs.HopsBoolean("Fliers", "f", "Show fliers, Default = True"),
         hs.HopsBoolean("Plot", "P", "Plot me!")
     ],
-    outputs=[]
+    outputs=[
+        hs.HopsString("Base64 png", "img_str", "Image as base64 bitmap."),
+    ]
 )
 def boxen_df(csv_df1: str, x_ax, y_ax, g_hue='', g_dodge=True, g_k_depth="tukey", g_palette="deep", g_showfliers=True,
              plot: bool = False):
     # load csv to df
     the_dataframe = csv_to_df(csv_df1)
     if plot:
-        all_graphs.boxen(the_dataframe, x_ax, y_ax, g_hue, g_dodge, g_k_depth, g_palette, g_showfliers)
+        return all_graphs.boxen(the_dataframe, x_ax, y_ax, g_hue, g_dodge, g_k_depth, g_palette, g_showfliers)
 
 
 @hops.component(
@@ -521,14 +545,16 @@ def boxen_df(csv_df1: str, x_ax, y_ax, g_hue='', g_dodge=True, g_k_depth="tukey"
                                       "\nDefault = 'deep'"),
         hs.HopsBoolean("Plot", "P", "Plot me!")
     ],
-    outputs=[]
+    outputs=[
+        hs.HopsString("Base64 png", "img_str", "Image as base64 bitmap."),
+    ]
 )
 def point_df(csv_df1: str, x_ax, y_ax, g_hue='', g_dodge=False, g_join=True, g_scale=1, g_errwidth=0, g_palette='deep',
              plot: bool = False):
     # load csv to df
     the_dataframe = csv_to_df(csv_df1)
     if plot:
-        all_graphs.point(the_dataframe, x_ax, y_ax, g_hue, g_dodge, g_join, g_scale, g_errwidth, g_palette)
+        return all_graphs.point(the_dataframe, x_ax, y_ax, g_hue, g_dodge, g_join, g_scale, g_errwidth, g_palette)
 
 
 @hops.component(
@@ -548,13 +574,15 @@ def point_df(csv_df1: str, x_ax, y_ax, g_hue='', g_dodge=False, g_join=True, g_s
                                       "\nDefault = 'deep'"),
         hs.HopsBoolean("Plot", "P", "Plot me!")
     ],
-    outputs=[]
+    outputs=[
+        hs.HopsString("Base64 png", "img_str", "Image as base64 bitmap."),
+    ]
 )
 def bar_df(csv_df1: str, x_ax, y_ax, g_hue='', g_ci="sd", g_errwidth=0, g_palette="deep", plot: bool = False):
     # load csv to df
     the_dataframe = csv_to_df(csv_df1)
     if plot:
-        all_graphs.bar(the_dataframe, x_ax, y_ax, g_hue, g_ci, g_errwidth, g_palette)
+        return all_graphs.bar(the_dataframe, x_ax, y_ax, g_hue, g_ci, g_errwidth, g_palette)
 
 
 @hops.component(
@@ -573,13 +601,15 @@ def bar_df(csv_df1: str, x_ax, y_ax, g_hue='', g_ci="sd", g_errwidth=0, g_palett
                                       "\nDefault = 'deep'"),
         hs.HopsBoolean("Plot", "P", "Plot me!")
     ],
-    outputs=[]
+    outputs=[
+        hs.HopsString("Base64 png", "img_str", "Image as base64 bitmap."),
+    ]
 )
 def count_df(csv_df1: str, x_ax, g_hue='', g_dodge=True, g_palette="deep", plot: bool=False):
     # load csv to df
     the_dataframe = csv_to_df(csv_df1)
     if plot:
-        all_graphs.count(the_dataframe, x_ax, g_hue, g_dodge, g_palette)
+        return all_graphs.count(the_dataframe, x_ax, g_hue, g_dodge, g_palette)
 
 
 # ----------------------------------------------------------------------------------

@@ -8,7 +8,7 @@ def base64img():
     # https://stackoverflow.com/questions/37225035/serialize-in-json-a-base64-encoded-data
     my_stringIObytes = io.BytesIO()
     
-    plt.savefig(my_stringIObytes, format='jpg')
+    plt.savefig(my_stringIObytes, format='png')
     plt.close()
     
     my_stringIObytes.seek(0)
@@ -36,8 +36,7 @@ def rel(g_dt, g_x_ax, g_y_ax, g_hue, g_palette):
             hue=g_hue,
             palette=g_palette
         )
-    plt.show()
-    plt.close()
+    return base64img()
 
 
 def no_default(g_dt, g_x_ax, g_y_ax, g_palette, g_hue):
@@ -51,8 +50,7 @@ def no_default(g_dt, g_x_ax, g_y_ax, g_palette, g_hue):
         palette=g_palette
     )
 
-    plt.show()
-    plt.close()
+    return base64img()
 
 
 def scatter(g_dt, g_x_ax, g_y_ax, g_hue, g_palette):
@@ -72,8 +70,7 @@ def scatter(g_dt, g_x_ax, g_y_ax, g_hue, g_palette):
             hue=g_hue,
             palette=g_palette
         )
-    plt.show()
-    plt.close()
+    return base64img()
 
 
 def line(g_dt, g_x_ax, g_y_ax, g_hue, g_palette):
@@ -93,8 +90,7 @@ def line(g_dt, g_x_ax, g_y_ax, g_hue, g_palette):
             hue=g_hue,
             palette=g_palette
         )
-    plt.show()
-    plt.close()
+    return base64img()
 
 
 # -------------------------------------------------
@@ -143,8 +139,7 @@ def dis(g_dt, g_x_ax, g_y_ax, g_hue, g_kind, g_rug, g_legend, g_palette):
                 legend=g_legend,
                 palette=g_palette
             )
-    plt.show()
-    plt.close()
+    return base64img()
 
 
 def hist(g_dt, g_x_ax, g_y_ax, g_hue, g_stat, g_cumulative, g_multiple, g_element, g_fill, g_shrink, g_kde, g_legend,
@@ -212,8 +207,7 @@ def hist(g_dt, g_x_ax, g_y_ax, g_hue, g_stat, g_cumulative, g_multiple, g_elemen
                 legend=g_legend,
                 palette=g_palette
             )
-    plt.show()
-    plt.close()
+    return base64img()
 
 
 def kde(g_dt, g_x_ax, g_y_ax, g_hue, g_cut, g_cumulative, g_multiple, g_common_norm, g_common_grid, g_levels, g_thresh,
@@ -289,8 +283,7 @@ def kde(g_dt, g_x_ax, g_y_ax, g_hue, g_cut, g_cumulative, g_multiple, g_common_n
                 legend=g_legend,
                 palette=g_palette
             )
-    plt.show()
-    plt.close()
+    return base64img()
 
 
 def ecdf():
@@ -330,8 +323,7 @@ def cat(g_dt, g_x_ax, g_y_ax, g_hue, g_ci, g_seed, g_kind, g_palette):
             kind=g_kind,
             palette=g_palette
         )
-    plt.show()
-    plt.close()
+    return base64img()
 
 
 def strip(g_dt, g_x_ax, g_y_ax, g_hue, g_jitter, g_palette, g_size):
@@ -355,8 +347,7 @@ def strip(g_dt, g_x_ax, g_y_ax, g_hue, g_jitter, g_palette, g_size):
             palette=g_palette,
             size=g_size
         )
-    plt.show()
-    plt.close()
+    return base64img()
 
 
 def swarm(g_dt, g_x_ax, g_y_ax, g_hue, g_dodge, g_palette, g_size):
@@ -380,8 +371,7 @@ def swarm(g_dt, g_x_ax, g_y_ax, g_hue, g_dodge, g_palette, g_size):
             palette=g_palette,
             size=g_size
         )
-    plt.show()
-    plt.close()
+    return base64img()
 
 
 def box(g_dt, g_x_ax, g_y_ax, g_hue, g_palette):
@@ -430,8 +420,7 @@ def violin(g_dt, g_x_ax, g_y_ax, g_hue, g_bw, g_inner, g_split, g_dodge, g_palet
             dodge=g_dodge,
             palette=g_palette,
         )
-    plt.show()
-    plt.close()
+    return base64img()
 
 
 def boxen(g_dt, g_x_ax, g_y_ax, g_hue, g_dodge, g_k_depth, g_palette, g_showfliers):
@@ -457,8 +446,7 @@ def boxen(g_dt, g_x_ax, g_y_ax, g_hue, g_dodge, g_k_depth, g_palette, g_showflie
             palette=g_palette,
             showfliers=g_showfliers
         )
-    plt.show()
-    plt.close()
+    return base64img()
 
 
 def point(g_dt, g_x_ax, g_y_ax, g_hue, g_dodge, g_join, g_scale, g_errwidth, g_palette):
@@ -486,8 +474,7 @@ def point(g_dt, g_x_ax, g_y_ax, g_hue, g_dodge, g_join, g_scale, g_errwidth, g_p
             errwidth=g_errwidth,
             palette=g_palette
         )
-    plt.show()
-    plt.close()
+    return base64img()
 
 
 def bar(g_dt, g_x_ax, g_y_ax, g_hue, g_ci, g_errwidth, g_palette):
@@ -511,8 +498,7 @@ def bar(g_dt, g_x_ax, g_y_ax, g_hue, g_ci, g_errwidth, g_palette):
             errwidth=g_errwidth,
             palette=g_palette
         )
-    plt.show()
-    plt.close()
+    return base64img()
 
 
 def count(g_dt, g_x_ax, g_hue, g_dodge, g_palette):
@@ -532,7 +518,6 @@ def count(g_dt, g_x_ax, g_hue, g_dodge, g_palette):
             dodge=g_dodge,
             palette=g_palette
         )
-    plt.show()
-    plt.close()
+    return base64img()
 
 # -----------------------
