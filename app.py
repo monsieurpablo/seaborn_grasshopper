@@ -425,13 +425,16 @@ def swarm_df(csv_df1: str, x_ax, y_ax, g_hue='', g_dodge=False, g_palette="deep"
                                       "\nDefault = 'deep'"),
         hs.HopsBoolean("Plot", "P", "Plot me!")
     ],
-    outputs=[]
+    outputs=[
+        hs.HopsString("Base64 jpg", "b64", "Image as base64 bitmap."),
+    ]
 )
 def box_df(csv_df1: str, x_ax, y_ax, g_hue='', g_palette="deep", plot: bool = False):
     # load csv to df
     the_dataframe = csv_to_df(csv_df1)
     if plot:
-        all_graphs.box(the_dataframe, x_ax, y_ax, g_hue, g_palette)
+        img = all_graphs.box(the_dataframe, x_ax, y_ax, g_hue, g_palette)
+        return img
 
 
 @hops.component(

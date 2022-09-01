@@ -1,10 +1,20 @@
+import base64
 from matplotlib import pyplot as plt
 import seaborn as sns
+import io
+import os
 
+def base64img():
+    # https://stackoverflow.com/questions/37225035/serialize-in-json-a-base64-encoded-data
+    my_stringIObytes = io.BytesIO()
+    plt.savefig(my_stringIObytes, format='jpg')
+    my_stringIObytes.seek(0)
+    img_data_bytes = base64.b64encode(my_stringIObytes.read())
+    img_data_string = img_data_bytes.decode('utf-8')
+    return img_data_string
 
 # ---------------------------------
 # RELATIONAL PLOTS
-
 
 def rel(g_dt, g_x_ax, g_y_ax, g_hue, g_palette):
     # https://seaborn.pydata.org/generated/seaborn.relplot.html#seaborn.relplot
@@ -388,8 +398,8 @@ def box(g_dt, g_x_ax, g_y_ax, g_hue, g_palette):
             hue=g_hue,
             palette=g_palette,
         )
-    plt.show()
-    plt.close()
+    
+    return base64img()
 
 
 def violin(g_dt, g_x_ax, g_y_ax, g_hue, g_bw, g_inner, g_split, g_dodge, g_palette):
