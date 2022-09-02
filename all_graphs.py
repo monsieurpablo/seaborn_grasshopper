@@ -376,21 +376,19 @@ def swarm(g_dt, g_x_ax, g_y_ax, g_hue, g_dodge, g_palette, g_size):
 
 def box(g_dt, g_x_ax, g_y_ax, g_hue, g_palette):
     # https://seaborn.pydata.org/generated/seaborn.boxplot.html#seaborn.boxplot
-    if g_hue == '':
-        sns.boxplot(
-            data=g_dt,
-            x=g_x_ax,
-            y=g_y_ax,
-            palette=g_palette,
-        )
-    else:
-        sns.boxplot(
-            data=g_dt,
-            x=g_x_ax,
-            y=g_y_ax,
-            hue=g_hue,
-            palette=g_palette,
-        )
+    # get all local arguments and check if = ''
+    
+    if g_hue == '': g_hue = None
+    
+    sns.boxplot(
+        data=g_dt,
+        x=g_x_ax,
+        y=g_y_ax,
+        hue=g_hue,
+        palette=g_palette,
+    )
+    
+    sns.despine(offset=10, trim=True)
     
     return base64img()
 
