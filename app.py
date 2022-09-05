@@ -390,7 +390,7 @@ def kde_df(csv_df1: str, x_ax, y_ax='', g_hue='', g_cut=3, g_cumulative=False, g
 
     if plot:
         return all_graphs.kde(the_dataframe, x_ax, y_ax, g_hue, g_cut, g_cumulative, g_multiple, g_common_norm, g_common_grid,
-                              g_levels, g_thresh, g_alpha, g_fill, g_legend, g_palette)
+                              g_levels, g_thresh, g_alpha, g_fill, g_legend, g_palette, g_despine, g_add_args, g_ax_args)
 
 
 # -------------------------------------------------
@@ -441,7 +441,7 @@ def cat_df(csv_df1: str, x_ax, y_ax, g_hue='', g_ci="None", g_seed=2, g_kind="st
     g_despine, g_add_args, g_ax_args)
 
     if plot:
-        return all_graphs.cat(the_dataframe, x_ax, y_ax, g_hue, g_ci, g_seed, g_kind, g_palette)
+        return all_graphs.cat(the_dataframe, x_ax, y_ax, g_hue, g_ci, g_seed, g_kind, g_palette, g_despine, g_add_args, g_ax_args)
 
 
 @hops.component(
