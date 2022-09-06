@@ -1,3 +1,4 @@
+from email.policy import default
 from flask import Flask
 import ghhops_server as hs
 import pandas as pd
@@ -120,9 +121,15 @@ def json_parser(*json_str):
             "Y axis", "y", "What's your Y value? Has to refer to numerical values"),
         hs.HopsString(
             "Hue", "hue", "Column value to differentiate X and Y with"),
+        hs.HopsString("Size", "size", "Grouping variable that will produce elements with different sizes. Can be either categorical or numeric,"),
+        hs.HopsString("Style", "style", "Grouping variable that will produce elements with different styles. Can have a numeric dtype but will always be treated as categorical."),
+        hs.HopsString("Rows", "row", "Variables that define subsets to plot on different facets."),
+        hs.HopsString("Columns", "col", "Variables that define subsets to plot on different facets."),
+        hs.HopsString("Wrap", "col_wrap", "“Wrap” the column variable at this width, so that the column facets span multiple rows", default=''),
+        hs.HopsString("Kind", "kind", "Options are 'scatter' and 'line'}.", default = "scatter"),
         hs.HopsString("Palette", "palette", "Seaborn palette for your graph."
                       "\nInput a valid name or select one from the output of the 'preset' component"
-                      "\nDefault = 'deep'"),
+                      "\nDefault = 'deep'", default= 'deep'),
         hs.HopsString("Despine", "despine",
                       "Despine your graph. Choose from: 'True', 'False', 'left', 'right', 'top'", default='{}'),
         hs.HopsString("Additional Arguments", "add_args",
@@ -135,7 +142,7 @@ def json_parser(*json_str):
         hs.HopsString("Base64 png", "img_str", "Image as base64 bitmap."),
     ]
 )
-def rel_df(csv_df1: str, x_ax, y_ax, g_hue='', g_palette="deep", g_despine='{}', g_add_args='{}', g_ax_args='{}', plot: bool = False):
+def rel_df(csv_df1: str, x_ax, y_ax, g_hue='', g_size = '', g_style='', g_row='', g_col= '', g_col_wrap='', g_kind = 'scatter', g_palette="deep",  g_despine='{}', g_add_args='{}', g_ax_args='{}', plot: bool = False):
     # load csv to df
     the_dataframe = csv_to_df(csv_df1)
 
@@ -143,7 +150,7 @@ def rel_df(csv_df1: str, x_ax, y_ax, g_hue='', g_palette="deep", g_despine='{}',
         g_despine, g_add_args, g_ax_args)
 
     if plot:
-        return all_graphs.rel(the_dataframe, x_ax, y_ax, g_hue, g_palette, g_despine, g_add_args, g_ax_args)
+        return all_graphs.rel(the_dataframe, x_ax, y_ax, g_hue, g_size, g_style, g_row, g_col,g_col_wrap, g_kind, g_palette, g_despine, g_add_args, g_ax_args)
 
 
 @hops.component(
@@ -161,6 +168,7 @@ def rel_df(csv_df1: str, x_ax, y_ax, g_hue='', g_palette="deep", g_despine='{}',
         hs.HopsString("Palette", "palette", "Seaborn palette for your graph."
                       "\nInput a valid name or select one from the output of the 'preset' component"
                       "\nDefault = 'deep'"),
+        hs.HopsString("String 'width; height' in inches", "fig_size", default=''),
         hs.HopsString("Despine", "despine",
                       "Despine your graph. Choose from: 'True', 'False', 'left', 'right', 'top'", default='{}'),
         hs.HopsString("Additional Arguments", "add_args",
@@ -173,7 +181,7 @@ def rel_df(csv_df1: str, x_ax, y_ax, g_hue='', g_palette="deep", g_despine='{}',
         hs.HopsString("Base64 png", "img_str", "Image as base64 bitmap."),
     ]
 )
-def scatter_df(csv_df1: str, x_ax, y_ax, g_hue='', g_palette="deep", g_despine='{}', g_add_args='{}', g_ax_args='{}', plot: bool = False):
+def scatter_df(csv_df1: str, x_ax, y_ax, g_hue='', g_palette="deep", g_fig_size='', g_despine='{}', g_add_args='{}', g_ax_args='{}', plot: bool = False):
     # load csv to df
     the_dataframe = csv_to_df(csv_df1)
     
@@ -181,7 +189,7 @@ def scatter_df(csv_df1: str, x_ax, y_ax, g_hue='', g_palette="deep", g_despine='
     g_despine, g_add_args, g_ax_args)
     
     if plot:
-        return all_graphs.scatter(the_dataframe, x_ax, y_ax, g_hue, g_palette, g_despine, g_add_args, g_ax_args)
+        return all_graphs.scatter(the_dataframe, x_ax, y_ax, g_hue, g_palette, g_fig_size, g_despine, g_add_args, g_ax_args)
 
 
 @hops.component(
@@ -237,8 +245,11 @@ def line_df(csv_df1: str, x_ax, y_ax, g_hue='', g_palette="deep", g_despine='{}'
         hs.HopsString("Y axis", "Y", "What's your Y value?"),
         hs.HopsString(
             "Hue", "hue", "Column value to differentiate X and Y with"),
+          hs.HopsString("Rows", "row", "Variables that define subsets to plot on different facets."),
+        hs.HopsString("Columns", "col", "Variables that define subsets to plot on different facets."),
+        hs.HopsString("Wrap", "col_wrap", "“Wrap” the column variable at this width, so that the column facets span multiple rows", default=''),
         hs.HopsString("Kind", "kind", "Selects the underlying plotting function and determines the additional set of "
-                                   "valid parameters.\nChoose from 'hist', 'kde' or 'ecdf' \nDefault: 'hist'"),
+                                   "valid parameters.\nChoose from 'hist', 'kde' or 'ecdf' \nDefault: 'hist'", default='hist'),
         hs.HopsBoolean(
             "Rug", "rug", "If True, show each observation with marginal ticks"),
         hs.HopsBoolean(
@@ -258,7 +269,7 @@ def line_df(csv_df1: str, x_ax, y_ax, g_hue='', g_palette="deep", g_despine='{}'
         hs.HopsString("Base64 png", "img_str", "Image as base64 bitmap."),
     ]
 )
-def dis_df(csv_df1: str, x_ax, y_ax='', g_hue='', g_kind='hist', g_rug=False, g_legend=True, g_palette="deep", g_despine='{}', g_add_args='{}', g_ax_args='{}',
+def dis_df(csv_df1: str, x_ax, y_ax='', g_hue='', g_row='', g_col= '', g_col_wrap='', g_kind='hist', g_rug=False, g_legend=True, g_palette="deep", g_despine='{}', g_add_args='{}', g_ax_args='{}',
            plot: bool = False):
     # load csv to df
     the_dataframe = csv_to_df(csv_df1)
@@ -267,7 +278,7 @@ def dis_df(csv_df1: str, x_ax, y_ax='', g_hue='', g_kind='hist', g_rug=False, g_
     g_despine, g_add_args, g_ax_args)
 
     if plot:
-        return all_graphs.dis(the_dataframe, x_ax, y_ax, g_hue, g_kind, g_rug, g_legend, g_palette, g_despine, g_add_args, g_ax_args)
+        return all_graphs.dis(the_dataframe, x_ax, y_ax, g_hue, g_row, g_col,g_col_wrap, g_kind, g_rug, g_legend, g_palette, g_despine, g_add_args, g_ax_args)
 
 
 @hops.component(
@@ -317,6 +328,7 @@ def dis_df(csv_df1: str, x_ax, y_ax='', g_hue='', g_kind='hist', g_rug=False, g_
 def hist_df(csv_df1: str, x_ax, y_ax='', g_hue='', g_stat='count', g_cumulative=False, g_multiple='layer',
             g_element='bars', g_fill=True, g_shrink=1, g_kde=False, g_legend=True, g_palette="deep", g_despine='{}', g_add_args='{}', g_ax_args='{}',
             plot: bool = False):
+
     # load csv to df
     the_dataframe = csv_to_df(csv_df1)
 
@@ -409,6 +421,9 @@ def kde_df(csv_df1: str, x_ax, y_ax='', g_hue='', g_cut=3, g_cumulative=False, g
             "Y axis", "y", "What's your Y value? Has to refer to numerical values"),
         hs.HopsString(
             "Hue", "hue", "Column value to differentiate X and Y with"),
+        hs.HopsString("Rows", "row", "Variables that define subsets to plot on different facets."),
+        hs.HopsString("Columns", "col", "Variables that define subsets to plot on different facets."),
+        hs.HopsString("Wrap", "col_wrap", "“Wrap” the column variable at this width, so that the column facets span multiple rows", default=''),
         hs.HopsString(
             "Coinfidence Interval", "ci", "Confidence interval can be set to 'sd' as for 'standard deviation'"),
         hs.HopsInteger("Seed", "seed", "Seed for reproducible bootstrapping"),
@@ -432,7 +447,7 @@ def kde_df(csv_df1: str, x_ax, y_ax='', g_hue='', g_cut=3, g_cumulative=False, g
         hs.HopsString("Base64 png", "img_str", "Image as base64 bitmap."),
     ]
 )
-def cat_df(csv_df1: str, x_ax, y_ax, g_hue='', g_ci="None", g_seed=2, g_kind="strip", g_palette="deep", g_despine='{}', g_add_args='{}', g_ax_args='{}',
+def cat_df(csv_df1: str, x_ax, y_ax, g_hue='', g_row='', g_col= '', g_col_wrap='', g_ci="None", g_seed=2, g_kind="strip", g_palette="deep", g_despine='{}', g_add_args='{}', g_ax_args='{}',
            plot: bool = False):
     # load csv to df
     the_dataframe = csv_to_df(csv_df1)
@@ -441,7 +456,7 @@ def cat_df(csv_df1: str, x_ax, y_ax, g_hue='', g_ci="None", g_seed=2, g_kind="st
     g_despine, g_add_args, g_ax_args)
 
     if plot:
-        return all_graphs.cat(the_dataframe, x_ax, y_ax, g_hue, g_ci, g_seed, g_kind, g_palette, g_despine, g_add_args, g_ax_args)
+        return all_graphs.cat(the_dataframe, x_ax, y_ax, g_hue, g_row, g_col,g_col_wrap, g_ci, g_seed, g_kind, g_palette, g_despine, g_add_args, g_ax_args)
 
 
 @hops.component(
@@ -646,7 +661,7 @@ def violin_df(csv_df1: str, x_ax, y_ax, g_hue='', g_bw=1, g_inner="box", g_split
         hs.HopsString("Base64 png", "img_str", "Image as base64 bitmap."),
     ]
 )
-def boxen_df(csv_df1: str, x_ax, y_ax, g_hue='', g_dodge=True, g_k_depth="tukey", g_showfliers=True, g_palette="deep", g_despine='{}', g_add_args='{}', g_ax_args='{}', 
+def boxen_df(csv_df1: str, x_ax, y_ax, g_hue='', g_dodge=True, g_k_depth="tukey", g_showfliers=True, g_palette="deep", g_despine='{}', g_add_args='{}', g_ax_args='{}',
              plot: bool = False):
     # load csv to df
     the_dataframe = csv_to_df(csv_df1)
