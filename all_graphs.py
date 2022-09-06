@@ -22,6 +22,8 @@ def empty2none(args):
     for k, v in args.items():
         if type(v) == str:
             args[k] = None if v == '' else v
+        if type(v) == int:
+            args[k] = None if v == -999 else v
     return args
 
 
@@ -42,6 +44,10 @@ def clean_args(args):
     args = empty2none(args)
 
     return args
+
+def example_data(data_base_name='iris'):
+    # https://seaborn.pydata.org/generated/seaborn.load_dataset.html#seaborn.load_dataset
+    sns.load_dataset(data_base_name).to_csv(index=False, line_terminator='@')
 
 
 # ---------------------------------
