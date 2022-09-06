@@ -1,14 +1,21 @@
 # Seaborn Grasshopper
-A rhino remote library that brings Seaborn (Matplotlib) inside of Grasshopper using [Hops](https://github.com/mcneel/compute.rhino3d/tree/master/src/ghhops-server-py). 
-Based on the initial release of [Hops_plots](https://github.com/MaesAntoine/Hops_plots) by MaesAntoine. 
+A Rhino Remote library that brings Seaborn (Matplotlib) inside of Grasshopper using [Hops](https://github.com/mcneel/compute.rhino3d/tree/master/src/ghhops-server-py). 
 
-This implementation brings the following enhancements:
+This second version is a complete refactor of the seaborn-grasshopper implementation. This approach greatly improves from the first version in the following ways:
+- Additional fuctions added
+    - `despine`     Dictionary with "Despine" functions arguments, that removes top and right axis lines. 
+    - `add_args`    Use additional figure arguments are not implemented in Grasshopper. 
+    - `ax_args`     Implement axis arguments to the matplotlib.Axis element. (Set title, x and y limits, etc ) 
+    - `fig_size`    Change figure size
 - Ready for web deployment using Heroku and gunicorn
 - Export image as a encoded b64 string
+- Less code duplication
+- Correct handling of defaults
 - Style improvement
 
+
 ## More information
-More infromation on how to use the tool [here](https://www.antoinemaes.com/plot-it)
+More infromation on how to use the tool [comming soon](). 
 
 ## Typical workflow
 ![Seaborn Grasshopper](https://i.imgur.com/MUZLQhk.gif)
