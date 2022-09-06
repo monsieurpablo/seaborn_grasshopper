@@ -130,6 +130,7 @@ def json_parser(*json_str):
         hs.HopsString("Palette", "palette", "Seaborn palette for your graph."
                       "\nInput a valid name or select one from the output of the 'preset' component"
                       "\nDefault = 'deep'", default= 'deep'),
+        hs.HopsString("Figure Size", "fig_size", "String 'width; height' in inches", default=''),
         hs.HopsString("Despine", "despine",
                       "Despine your graph. Choose from: 'True', 'False', 'left', 'right', 'top'", default='{}'),
         hs.HopsString("Additional Arguments", "add_args",
@@ -142,7 +143,7 @@ def json_parser(*json_str):
         hs.HopsString("Base64 png", "img_str", "Image as base64 bitmap."),
     ]
 )
-def rel_df(csv_df1: str, x_ax, y_ax, g_hue='', g_size = '', g_style='', g_row='', g_col= '', g_col_wrap='', g_kind = 'scatter', g_palette="deep",  g_despine='{}', g_add_args='{}', g_ax_args='{}', plot: bool = False):
+def rel_df(csv_df1: str, x_ax, y_ax, g_hue='', g_size = '', g_style='', g_row='', g_col= '', g_col_wrap='', g_kind = 'scatter', g_palette="deep",  g_fig_size='', g_despine='{}', g_add_args='{}', g_ax_args='{}', plot: bool = False):
     # load csv to df
     the_dataframe = csv_to_df(csv_df1)
 
@@ -150,7 +151,7 @@ def rel_df(csv_df1: str, x_ax, y_ax, g_hue='', g_size = '', g_style='', g_row=''
         g_despine, g_add_args, g_ax_args)
 
     if plot:
-        return all_graphs.rel(the_dataframe, x_ax, y_ax, g_hue, g_size, g_style, g_row, g_col,g_col_wrap, g_kind, g_palette, g_despine, g_add_args, g_ax_args)
+        return all_graphs.rel(the_dataframe, x_ax, y_ax, g_hue, g_size, g_style, g_row, g_col,g_col_wrap, g_kind, g_palette, g_fig_size, g_despine, g_add_args, g_ax_args)
 
 
 @hops.component(
@@ -168,7 +169,7 @@ def rel_df(csv_df1: str, x_ax, y_ax, g_hue='', g_size = '', g_style='', g_row=''
         hs.HopsString("Palette", "palette", "Seaborn palette for your graph."
                       "\nInput a valid name or select one from the output of the 'preset' component"
                       "\nDefault = 'deep'"),
-        hs.HopsString("String 'width; height' in inches", "fig_size", default=''),
+        hs.HopsString("Figure Size", "fig_size", "String 'width; height' in inches", default=''),
         hs.HopsString("Despine", "despine",
                       "Despine your graph. Choose from: 'True', 'False', 'left', 'right', 'top'", default='{}'),
         hs.HopsString("Additional Arguments", "add_args",
@@ -207,6 +208,7 @@ def scatter_df(csv_df1: str, x_ax, y_ax, g_hue='', g_palette="deep", g_fig_size=
         hs.HopsString("Palette", "palette", "Seaborn palette for your graph."
                       "\nInput a valid name or select one from the output of the 'preset' component"
                       "\nDefault = 'deep'"),
+        hs.HopsString("Figure Size", "fig_size", "String 'width; height' in inches", default=''),
         hs.HopsString("Despine", "despine",
                       "Despine your graph. Choose from: 'True', 'False', 'left', 'right', 'top'", default='{}'),
         hs.HopsString("Additional Arguments", "add_args",
@@ -219,7 +221,7 @@ def scatter_df(csv_df1: str, x_ax, y_ax, g_hue='', g_palette="deep", g_fig_size=
         hs.HopsString("Base64 png", "img_str", "Image as base64 bitmap."),
     ]
 )
-def line_df(csv_df1: str, x_ax, y_ax, g_hue='', g_palette="deep", g_despine='{}', g_add_args='{}', g_ax_args='{}', plot: bool = False):
+def line_df(csv_df1: str, x_ax, y_ax, g_hue='', g_palette="deep", g_fig_size='', g_despine='{}', g_add_args='{}', g_ax_args='{}', plot: bool = False):
     # load csv to df
     the_dataframe = csv_to_df(csv_df1)
     
@@ -227,10 +229,10 @@ def line_df(csv_df1: str, x_ax, y_ax, g_hue='', g_palette="deep", g_despine='{}'
     g_despine, g_add_args, g_ax_args)
     
     if plot:
-        return all_graphs.line(the_dataframe, x_ax, y_ax, g_hue, g_palette, g_despine, g_add_args, g_ax_args)
+        return all_graphs.line(the_dataframe, x_ax, y_ax, g_hue, g_palette, g_fig_size, g_despine, g_add_args, g_ax_args)
 
 
-# -------------------------------------------------
+# ------------------------------------------------r
 # DISTRIBUTION PLOTS
 
 
@@ -257,6 +259,7 @@ def line_df(csv_df1: str, x_ax, y_ax, g_hue='', g_palette="deep", g_despine='{}'
         hs.HopsString("Palette", "palette", "Seaborn palette for your graph."
                       "\nInput a valid name or select one from the output of the 'preset' component"
                       "\nDefault = 'deep'"),
+        hs.HopsString("Figure Size", "fig_size", "String 'width; height' in inches", default=''),
         hs.HopsString("Despine", "despine",
                       "Despine your graph. Choose from: 'True', 'False', 'left', 'right', 'top'", default='{}'),
         hs.HopsString("Additional Arguments", "add_args",
@@ -269,7 +272,7 @@ def line_df(csv_df1: str, x_ax, y_ax, g_hue='', g_palette="deep", g_despine='{}'
         hs.HopsString("Base64 png", "img_str", "Image as base64 bitmap."),
     ]
 )
-def dis_df(csv_df1: str, x_ax, y_ax='', g_hue='', g_row='', g_col= '', g_col_wrap='', g_kind='hist', g_rug=False, g_legend=True, g_palette="deep", g_despine='{}', g_add_args='{}', g_ax_args='{}',
+def dis_df(csv_df1: str, x_ax, y_ax='', g_hue='', g_row='', g_col= '', g_col_wrap='', g_kind='hist', g_rug=False, g_legend=True, g_palette="deep", g_fig_size='', g_despine='{}', g_add_args='{}', g_ax_args='{}',
            plot: bool = False):
     # load csv to df
     the_dataframe = csv_to_df(csv_df1)
@@ -278,7 +281,7 @@ def dis_df(csv_df1: str, x_ax, y_ax='', g_hue='', g_row='', g_col= '', g_col_wra
     g_despine, g_add_args, g_ax_args)
 
     if plot:
-        return all_graphs.dis(the_dataframe, x_ax, y_ax, g_hue, g_row, g_col,g_col_wrap, g_kind, g_rug, g_legend, g_palette, g_despine, g_add_args, g_ax_args)
+        return all_graphs.dis(the_dataframe, x_ax, y_ax, g_hue, g_row, g_col,g_col_wrap, g_kind, g_rug, g_legend, g_palette, g_fig_size, g_despine, g_add_args, g_ax_args)
 
 
 @hops.component(
@@ -313,6 +316,7 @@ def dis_df(csv_df1: str, x_ax, y_ax='', g_hue='', g_row='', g_col= '', g_col_wra
         hs.HopsString("Palette", "palette", "Seaborn palette for your graph."
                       "\nInput a valid name or select one from the output of the 'preset' component"
                       "\nDefault = 'deep'"),
+        hs.HopsString("Figure Size", "fig_size", "String 'width; height' in inches", default=''),
         hs.HopsString("Despine", "despine",
                       "Despine your graph. Choose from: 'True', 'False', 'left', 'right', 'top'", default='{}'),
         hs.HopsString("Additional Arguments", "add_args",
@@ -326,7 +330,7 @@ def dis_df(csv_df1: str, x_ax, y_ax='', g_hue='', g_row='', g_col= '', g_col_wra
     ]
 )
 def hist_df(csv_df1: str, x_ax, y_ax='', g_hue='', g_stat='count', g_cumulative=False, g_multiple='layer',
-            g_element='bars', g_fill=True, g_shrink=1, g_kde=False, g_legend=True, g_palette="deep", g_despine='{}', g_add_args='{}', g_ax_args='{}',
+            g_element='bars', g_fill=True, g_shrink=1, g_kde=False, g_legend=True, g_palette="deep", g_fig_size='', g_despine='{}', g_add_args='{}', g_ax_args='{}',
             plot: bool = False):
 
     # load csv to df
@@ -337,7 +341,7 @@ def hist_df(csv_df1: str, x_ax, y_ax='', g_hue='', g_stat='count', g_cumulative=
 
     if plot:
         return all_graphs.hist(the_dataframe, x_ax, y_ax, g_hue, g_stat, g_cumulative, g_multiple, g_element, g_fill, g_shrink,
-                               g_kde, g_legend, g_palette, g_despine, g_add_args, g_ax_args)
+                               g_kde, g_legend, g_palette, g_fig_size, g_despine, g_add_args, g_ax_args)
 
 
 @hops.component(
@@ -379,6 +383,7 @@ def hist_df(csv_df1: str, x_ax, y_ax='', g_hue='', g_stat='count', g_cumulative=
         hs.HopsString("Palette", "palette", "Seaborn palette for your graph."
                       "\nInput a valid name or select one from the output of the 'preset' component"
                       "\nDefault = 'deep'"),
+        hs.HopsString("Figure Size", "fig_size", "String 'width; height' in inches", default=''),
         hs.HopsString("Despine", "despine",
                       "Despine your graph. Choose from: 'True', 'False', 'left', 'right', 'top'", default='{}'),
         hs.HopsString("Additional Arguments", "add_args",
@@ -393,7 +398,7 @@ def hist_df(csv_df1: str, x_ax, y_ax='', g_hue='', g_stat='count', g_cumulative=
 )
 def kde_df(csv_df1: str, x_ax, y_ax='', g_hue='', g_cut=3, g_cumulative=False, g_multiple='layer', g_common_norm=True,
            g_common_grid=False, g_levels=10, g_thresh=0.05, g_alpha=1, g_fill=False, g_legend=True,
-           g_palette="deep", g_despine='{}', g_add_args='{}', g_ax_args='{}', plot: bool = False):
+           g_palette="deep", g_fig_size='', g_despine='{}', g_add_args='{}', g_ax_args='{}', plot: bool = False):
     # load csv to df
     the_dataframe = csv_to_df(csv_df1)
 
@@ -402,7 +407,7 @@ def kde_df(csv_df1: str, x_ax, y_ax='', g_hue='', g_cut=3, g_cumulative=False, g
 
     if plot:
         return all_graphs.kde(the_dataframe, x_ax, y_ax, g_hue, g_cut, g_cumulative, g_multiple, g_common_norm, g_common_grid,
-                              g_levels, g_thresh, g_alpha, g_fill, g_legend, g_palette, g_despine, g_add_args, g_ax_args)
+                              g_levels, g_thresh, g_alpha, g_fill, g_legend, g_palette, g_fig_size, g_despine, g_add_args, g_ax_args)
 
 
 # -------------------------------------------------
@@ -435,6 +440,7 @@ def kde_df(csv_df1: str, x_ax, y_ax='', g_hue='', g_cut=3, g_cumulative=False, g
         hs.HopsString("Palette", "palette", "Seaborn palette for your graph."
                       "\nInput a valid name or select one from the output of the 'preset' component"
                       "\nDefault = 'deep'"),
+        hs.HopsString("Figure Size", "fig_size", "String 'width; height' in inches", default=''),
         hs.HopsString("Despine", "despine",
                       "Despine your graph. Choose from: 'True', 'False', 'left', 'right', 'top'", default='{}'),
         hs.HopsString("Additional Arguments", "add_args",
@@ -447,7 +453,7 @@ def kde_df(csv_df1: str, x_ax, y_ax='', g_hue='', g_cut=3, g_cumulative=False, g
         hs.HopsString("Base64 png", "img_str", "Image as base64 bitmap."),
     ]
 )
-def cat_df(csv_df1: str, x_ax, y_ax, g_hue='', g_row='', g_col= '', g_col_wrap='', g_ci="None", g_seed=2, g_kind="strip", g_palette="deep", g_despine='{}', g_add_args='{}', g_ax_args='{}',
+def cat_df(csv_df1: str, x_ax, y_ax, g_hue='', g_row='', g_col= '', g_col_wrap='', g_ci="None", g_seed=2, g_kind="strip", g_palette="deep", g_fig_size='', g_despine='{}', g_add_args='{}', g_ax_args='{}',
            plot: bool = False):
     # load csv to df
     the_dataframe = csv_to_df(csv_df1)
@@ -456,7 +462,7 @@ def cat_df(csv_df1: str, x_ax, y_ax, g_hue='', g_row='', g_col= '', g_col_wrap='
     g_despine, g_add_args, g_ax_args)
 
     if plot:
-        return all_graphs.cat(the_dataframe, x_ax, y_ax, g_hue, g_row, g_col,g_col_wrap, g_ci, g_seed, g_kind, g_palette, g_despine, g_add_args, g_ax_args)
+        return all_graphs.cat(the_dataframe, x_ax, y_ax, g_hue, g_row, g_col,g_col_wrap, g_ci, g_seed, g_kind, g_palette, g_fig_size, g_despine, g_add_args, g_ax_args)
 
 
 @hops.component(
@@ -477,6 +483,7 @@ def cat_df(csv_df1: str, x_ax, y_ax, g_hue='', g_row='', g_col= '', g_col_wrap='
         hs.HopsString("Palette", "palette", "Seaborn palette for your graph."
                       "\nInput a valid name or select one from the output of the 'preset' component"
                       "\nDefault = 'deep'"),
+        hs.HopsString("Figure Size", "fig_size", "String 'width; height' in inches", default=''),
         hs.HopsString("Despine", "despine",
                       "Despine your graph. Choose from: 'True', 'False', 'left', 'right', 'top'", default='{}'),
         hs.HopsString("Additional Arguments", "add_args",
@@ -489,7 +496,7 @@ def cat_df(csv_df1: str, x_ax, y_ax, g_hue='', g_row='', g_col= '', g_col_wrap='
         hs.HopsString("Base64 png", "img_str", "Image as base64 bitmap."),
     ]
 )
-def strip_df(csv_df1: str, x_ax, y_ax, g_hue='', g_jitter=True, g_size=2, g_palette="deep", g_despine='{}', g_add_args='{}', g_ax_args='{}', plot: bool = False):
+def strip_df(csv_df1: str, x_ax, y_ax, g_hue='', g_jitter=True, g_size=2, g_palette="deep", g_fig_size='', g_despine='{}', g_add_args='{}', g_ax_args='{}', plot: bool = False):
     # load csv to df
     the_dataframe = csv_to_df(csv_df1)
 
@@ -497,7 +504,7 @@ def strip_df(csv_df1: str, x_ax, y_ax, g_hue='', g_jitter=True, g_size=2, g_pale
     g_despine, g_add_args, g_ax_args)
 
     if plot:
-        return all_graphs.strip(the_dataframe, x_ax, y_ax, g_hue, g_jitter, g_size, g_palette , g_despine, g_add_args, g_ax_args)
+        return all_graphs.strip(the_dataframe, x_ax, y_ax, g_hue, g_jitter, g_size, g_palette , g_fig_size, g_despine, g_add_args, g_ax_args)
 
 
 @hops.component(
@@ -518,6 +525,7 @@ def strip_df(csv_df1: str, x_ax, y_ax, g_hue='', g_jitter=True, g_size=2, g_pale
         hs.HopsString("Palette", "palette", "Seaborn palette for your graph."
                       "\nInput a valid name or select one from the output of the 'preset' component"
                       "\nDefault = 'deep'"),
+        hs.HopsString("Figure Size", "fig_size", "String 'width; height' in inches", default=''),
         hs.HopsString("Despine", "despine",
                       "Despine your graph. Choose from: 'True', 'False', 'left', 'right', 'top'", default='{}'),
         hs.HopsString("Additional Arguments", "add_args",
@@ -530,7 +538,7 @@ def strip_df(csv_df1: str, x_ax, y_ax, g_hue='', g_jitter=True, g_size=2, g_pale
         hs.HopsString("Base64 png", "img_str", "Image as base64 bitmap."),
     ]
 )
-def swarm_df(csv_df1: str, x_ax, y_ax, g_hue='', g_dodge=False, g_size=2,g_palette="deep", g_despine='{}', g_add_args='{}', g_ax_args='{}', plot: bool = False):
+def swarm_df(csv_df1: str, x_ax, y_ax, g_hue='', g_dodge=False, g_size=2,g_palette="deep", g_fig_size='', g_despine='{}', g_add_args='{}', g_ax_args='{}', plot: bool = False):
     # load csv to df
     the_dataframe = csv_to_df(csv_df1)
 
@@ -538,7 +546,7 @@ def swarm_df(csv_df1: str, x_ax, y_ax, g_hue='', g_dodge=False, g_size=2,g_palet
     g_despine, g_add_args, g_ax_args)
 
     if plot:
-        return all_graphs.swarm(the_dataframe, x_ax, y_ax, g_hue, g_dodge, g_size, g_palette, g_despine, g_add_args, g_ax_args)
+        return all_graphs.swarm(the_dataframe, x_ax, y_ax, g_hue, g_dodge, g_size, g_palette, g_fig_size, g_despine, g_add_args, g_ax_args)
 
 
 @hops.component(
@@ -556,6 +564,7 @@ def swarm_df(csv_df1: str, x_ax, y_ax, g_hue='', g_dodge=False, g_size=2,g_palet
         hs.HopsString("Palette", "palette", "Seaborn palette for your graph."
                       "\nInput a valid name or select one from the output of the 'preset' component"
                       "\nDefault = 'deep'"),
+        hs.HopsString("Figure Size", "fig_size", "String 'width; height' in inches", default=''),
         hs.HopsString("Despine", "despine",
                       "Despine your graph. Choose from: 'True', 'False', 'left', 'right', 'top'", default='{}'),
         hs.HopsString("Additional Arguments", "add_args",
@@ -568,7 +577,7 @@ def swarm_df(csv_df1: str, x_ax, y_ax, g_hue='', g_dodge=False, g_size=2,g_palet
         hs.HopsString("Base64 png", "img_str", "Image as base64 bitmap."),
     ]
 )
-def box_df(csv_df1: str, x_ax, y_ax, g_hue='', g_palette="deep", g_despine='{}', g_add_args='{}', g_ax_args='{}', plot: bool = False):
+def box_df(csv_df1: str, x_ax, y_ax, g_hue='', g_palette="deep", g_fig_size='', g_despine='{}', g_add_args='{}', g_ax_args='{}', plot: bool = False):
     # load csv to df
     the_dataframe = csv_to_df(csv_df1)
 
@@ -576,7 +585,7 @@ def box_df(csv_df1: str, x_ax, y_ax, g_hue='', g_palette="deep", g_despine='{}',
     g_despine, g_add_args, g_ax_args)
 
     if plot:
-        img = all_graphs.box(the_dataframe, x_ax, y_ax, g_hue, g_palette, g_despine, g_add_args, g_ax_args)
+        img = all_graphs.box(the_dataframe, x_ax, y_ax, g_hue, g_palette, g_fig_size, g_despine, g_add_args, g_ax_args)
         return img
 
 
@@ -604,6 +613,7 @@ def box_df(csv_df1: str, x_ax, y_ax, g_hue='', g_palette="deep", g_despine='{}',
         hs.HopsString("Palette", "palette", "Seaborn palette for your graph."
                       "\nInput a valid name or select one from the output of the 'preset' component"
                       "\nDefault = 'deep'"),
+        hs.HopsString("Figure Size", "fig_size", "String 'width; height' in inches", default=''),
         hs.HopsString("Despine", "despine",
                       "Despine your graph. Choose from: 'True', 'False', 'left', 'right', 'top'", default='{}'),
         hs.HopsString("Additional Arguments", "add_args",
@@ -616,7 +626,7 @@ def box_df(csv_df1: str, x_ax, y_ax, g_hue='', g_palette="deep", g_despine='{}',
         hs.HopsString("Base64 png", "img_str", "Image as base64 bitmap."),
     ]
 )
-def violin_df(csv_df1: str, x_ax, y_ax, g_hue='', g_bw=1, g_inner="box", g_split=False, g_dodge=True, g_palette="deep", g_despine='{}', g_add_args='{}', g_ax_args='{}',
+def violin_df(csv_df1: str, x_ax, y_ax, g_hue='', g_bw=1, g_inner="box", g_split=False, g_dodge=True, g_palette="deep", g_fig_size='', g_despine='{}', g_add_args='{}', g_ax_args='{}',
               plot: bool = False):
     # load csv to df
     the_dataframe = csv_to_df(csv_df1)
@@ -625,7 +635,7 @@ def violin_df(csv_df1: str, x_ax, y_ax, g_hue='', g_bw=1, g_inner="box", g_split
     g_despine, g_add_args, g_ax_args)
 
     if plot:
-        return all_graphs.violin(the_dataframe, x_ax, y_ax, g_hue, g_bw, g_inner, g_split, g_dodge, g_palette, g_despine, g_add_args, g_ax_args)
+        return all_graphs.violin(the_dataframe, x_ax, y_ax, g_hue, g_bw, g_inner, g_split, g_dodge, g_palette, g_fig_size, g_despine, g_add_args, g_ax_args)
 
 
 @hops.component(
@@ -649,6 +659,7 @@ def violin_df(csv_df1: str, x_ax, y_ax, g_hue='', g_bw=1, g_inner="box", g_split
         hs.HopsString("Palette", "palette", "Seaborn palette for your graph."
                       "\nInput a valid name or select one from the output of the 'preset' component"
                       "\nDefault = 'deep'"),
+        hs.HopsString("Figure Size", "fig_size", "String 'width; height' in inches", default=''),
         hs.HopsString("Despine", "despine",
                       "Despine your graph. Choose from: 'True', 'False', 'left', 'right', 'top'", default='{}'),
         hs.HopsString("Additional Arguments", "add_args",
@@ -661,7 +672,7 @@ def violin_df(csv_df1: str, x_ax, y_ax, g_hue='', g_bw=1, g_inner="box", g_split
         hs.HopsString("Base64 png", "img_str", "Image as base64 bitmap."),
     ]
 )
-def boxen_df(csv_df1: str, x_ax, y_ax, g_hue='', g_dodge=True, g_k_depth="tukey", g_showfliers=True, g_palette="deep", g_despine='{}', g_add_args='{}', g_ax_args='{}',
+def boxen_df(csv_df1: str, x_ax, y_ax, g_hue='', g_dodge=True, g_k_depth="tukey", g_showfliers=True, g_palette="deep", g_fig_size='', g_despine='{}', g_add_args='{}', g_ax_args='{}',
              plot: bool = False):
     # load csv to df
     the_dataframe = csv_to_df(csv_df1)
@@ -670,7 +681,7 @@ def boxen_df(csv_df1: str, x_ax, y_ax, g_hue='', g_dodge=True, g_k_depth="tukey"
     g_despine, g_add_args, g_ax_args)
 
     if plot:
-        return all_graphs.boxen(the_dataframe, x_ax, y_ax, g_hue, g_dodge, g_k_depth, g_showfliers, g_palette, g_despine, g_add_args, g_ax_args)
+        return all_graphs.boxen(the_dataframe, x_ax, y_ax, g_hue, g_dodge, g_k_depth, g_showfliers, g_palette, g_fig_size, g_despine, g_add_args, g_ax_args)
 
 
 @hops.component(
@@ -694,6 +705,7 @@ def boxen_df(csv_df1: str, x_ax, y_ax, g_hue='', g_dodge=True, g_k_depth="tukey"
         hs.HopsString("Palette", "palette", "Seaborn palette for your graph."
                       "\nInput a valid name or select one from the output of the 'preset' component"
                       "\nDefault = 'deep'"),
+        hs.HopsString("Figure Size", "fig_size", "String 'width; height' in inches", default=''),
         hs.HopsString("Despine", "despine",
                       "Despine your graph. Choose from: 'True', 'False', 'left', 'right', 'top'", default='{}'),
         hs.HopsString("Additional Arguments", "add_args",
@@ -706,7 +718,7 @@ def boxen_df(csv_df1: str, x_ax, y_ax, g_hue='', g_dodge=True, g_k_depth="tukey"
         hs.HopsString("Base64 png", "img_str", "Image as base64 bitmap."),
     ]
 )
-def point_df(csv_df1: str, x_ax, y_ax, g_hue='', g_dodge=False, g_join=True, g_scale=1, g_errwidth=0, g_palette='deep', g_despine='{}', g_add_args='{}', g_ax_args='{}',
+def point_df(csv_df1: str, x_ax, y_ax, g_hue='', g_dodge=False, g_join=True, g_scale=1, g_errwidth=0, g_palette='deep', g_fig_size='', g_despine='{}', g_add_args='{}', g_ax_args='{}',
              plot: bool = False):
     # load csv to df
     the_dataframe = csv_to_df(csv_df1)
@@ -715,7 +727,7 @@ def point_df(csv_df1: str, x_ax, y_ax, g_hue='', g_dodge=False, g_join=True, g_s
     g_despine, g_add_args, g_ax_args)
 
     if plot:
-        return all_graphs.point(the_dataframe, x_ax, y_ax, g_hue, g_dodge, g_join, g_scale, g_errwidth, g_palette, g_despine, g_add_args, g_ax_args)
+        return all_graphs.point(the_dataframe, x_ax, y_ax, g_hue, g_dodge, g_join, g_scale, g_errwidth, g_palette, g_fig_size, g_despine, g_add_args, g_ax_args)
 
 
 @hops.component(
@@ -736,6 +748,7 @@ def point_df(csv_df1: str, x_ax, y_ax, g_hue='', g_dodge=False, g_join=True, g_s
         hs.HopsString("Palette", "palette", "Seaborn palette for your graph."
                       "\nInput a valid name or select one from the output of the 'preset' component"
                       "\nDefault = 'deep'"),
+        hs.HopsString("Figure Size", "fig_size", "String 'width; height' in inches", default=''),
         hs.HopsString("Despine", "despine",
                       "Despine your graph. Choose from: 'True', 'False', 'left', 'right', 'top'", default='{}'),
         hs.HopsString("Additional Arguments", "add_args",
@@ -748,7 +761,7 @@ def point_df(csv_df1: str, x_ax, y_ax, g_hue='', g_dodge=False, g_join=True, g_s
         hs.HopsString("Base64 png", "img_str", "Image as base64 bitmap."),
     ]
 )
-def bar_df(csv_df1: str, x_ax, y_ax, g_hue='', g_ci="sd", g_errwidth=0, g_palette="deep", g_despine='{}', g_add_args='{}', g_ax_args='{}', plot: bool = False):
+def bar_df(csv_df1: str, x_ax, y_ax, g_hue='', g_ci="sd", g_errwidth=0, g_palette="deep", g_fig_size='', g_despine='{}', g_add_args='{}', g_ax_args='{}', plot: bool = False):
     # load csv to df
     the_dataframe = csv_to_df(csv_df1)
 
@@ -756,7 +769,7 @@ def bar_df(csv_df1: str, x_ax, y_ax, g_hue='', g_ci="sd", g_errwidth=0, g_palett
     g_despine, g_add_args, g_ax_args)
 
     if plot:
-        return all_graphs.bar(the_dataframe, x_ax, y_ax, g_hue, g_ci, g_errwidth, g_palette, g_despine, g_add_args, g_ax_args)
+        return all_graphs.bar(the_dataframe, x_ax, y_ax, g_hue, g_ci, g_errwidth, g_palette, g_fig_size, g_despine, g_add_args, g_ax_args)
 
 
 @hops.component(
@@ -774,6 +787,7 @@ def bar_df(csv_df1: str, x_ax, y_ax, g_hue='', g_ci="sd", g_errwidth=0, g_palett
         hs.HopsString("Palette", "palette", "Seaborn palette for your graph."
                       "\nInput a valid name or select one from the output of the 'preset' component"
                       "\nDefault = 'deep'"),
+        hs.HopsString("Figure Size", "fig_size", "String 'width; height' in inches", default=''),
         hs.HopsString("Despine", "despine",
                       "Despine your graph. Choose from: 'True', 'False', 'left', 'right', 'top'", default='{}'),
         hs.HopsString("Additional Arguments", "add_args",
@@ -786,7 +800,7 @@ def bar_df(csv_df1: str, x_ax, y_ax, g_hue='', g_ci="sd", g_errwidth=0, g_palett
         hs.HopsString("Base64 png", "img_str", "Image as base64 bitmap."),
     ]
 )
-def count_df(csv_df1: str, x_ax, g_hue='', g_dodge=True, g_palette="deep", g_despine='{}', g_add_args='{}', g_ax_args='{}', plot: bool = False):
+def count_df(csv_df1: str, x_ax, g_hue='', g_dodge=True, g_palette="deep", g_fig_size='', g_despine='{}', g_add_args='{}', g_ax_args='{}', plot: bool = False):
     # load csv to df
     the_dataframe = csv_to_df(csv_df1)
 
@@ -794,7 +808,7 @@ def count_df(csv_df1: str, x_ax, g_hue='', g_dodge=True, g_palette="deep", g_des
     g_despine, g_add_args, g_ax_args)
 
     if plot:
-        return all_graphs.count(the_dataframe, x_ax, g_hue, g_dodge, g_palette, g_despine, g_add_args, g_ax_args)
+        return all_graphs.count(the_dataframe, x_ax, g_hue, g_dodge, g_palette, g_fig_size, g_despine, g_add_args, g_ax_args)
 
 
 # ----------------------------------------------------------------------------------
