@@ -1,5 +1,3 @@
-from email.policy import default
-from unicodedata import name
 from flask import Flask
 import ghhops_server as hs
 import pandas as pd
