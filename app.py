@@ -2,6 +2,8 @@ from flask import Flask
 import ghhops_server as hs
 import pandas as pd
 import os
+import json
+import seaborn as sns
 
 import all_graphs
 from utils import *
@@ -11,9 +13,11 @@ from utils import *
 app = Flask(__name__)
 hops: hs.HopsFlask = hs.Hops(app)
 
+
 @app.route('/')
 def index():
     return 'Hello World!'
+
 
 @hops.component(
     "/dt_to_df",
@@ -21,7 +25,8 @@ def index():
     nickname="dtdf",
     description="Converts any str,int,float datatree to a csv representation of a dataframe",
     inputs=[
-        hs.HopsString("Data as tree", "Dt", "Data tree to convert", hs.HopsParamAccess.TREE),
+        hs.HopsString("Data as tree", "Dt",
+                      "Data tree to convert", hs.HopsParamAccess.TREE),
         hs.HopsString("Tree structure labels", "L", "List of the path labels (what the tree structure represent)",
                       hs.HopsParamAccess.LIST),
         hs.HopsString("Datatype", "D", "What does the data represent? Number of elements should match the number of"
@@ -58,6 +63,22 @@ def better(data_tree: dict, path_labels: list, data_type: list):
 
 
 @hops.component(
+    "/example_data",
+    name="Example data",
+    nickname="ex_dt",
+    description="Example data for the datatree to dataframe component",
+    inputs=[
+        hs.HopsString("Dataset Name", "name", "Name of the dataset to load"),
+        ],
+    outputs=[
+        hs.HopsString("DfCSV", "Df", "Dataframe as a csv.", default="iris"),
+        ]
+    )
+def example_data(name: str):
+    return sns.load_dataset(name).to_csv(index=False, line_terminator='@')
+
+
+@hops.component(
     "/presets",
     name="Available presets",
     nickname="AvPre",
@@ -70,8 +91,10 @@ def better(data_tree: dict, path_labels: list, data_type: list):
                                                    "\nChoose from: 'default', 'diverging', 'qualitative', 'sequential'")
     ],
     outputs=[
-        hs.HopsString("Available plots", "Plots", "Currently available plots", hs.HopsParamAccess.LIST),
-        hs.HopsString("Available palettes", "Palettes", "Currently available palettes", hs.HopsParamAccess.LIST)
+        hs.HopsString("Available plots", "Plots",
+                      "Currently available plots", hs.HopsParamAccess.LIST),
+        hs.HopsString("Available palettes", "Palettes",
+                      "Currently available palettes", hs.HopsParamAccess.LIST)
     ]
 )
 def available_presets(plot_type='categorical', palette_type='default'):
@@ -92,37 +115,13 @@ def available_presets(plot_type='categorical', palette_type='default'):
 
     return supported_plots[plot_type], supported_palettes[palette_type]
 
-
 # ---------------------------------
 # CURRENTLY AVAILABLE PLOTS
 
-# NO DEFAULT EXAMPLE, WHICH SHOULD PRODUCE A RELPLOT (See one function after this one)
-@hops.component(
-    "/no_default",
-    name="dataframes relploter",
-    nickname="relDF",
-    description="Relplot a dataframe",
-    inputs=[
-        hs.HopsString("Dataframe", "Df", "Dataframe to relplot"),
-        hs.HopsString("X axis", "X", "What's your X value?"),
-        hs.HopsString("Y axis", "Y", "What's your Y value? Has to refer to numerical values"),
-        hs.HopsString("Hue", "h", "Column value to differentiate X and Y with", default=None),
-        hs.HopsString("Palette", "p", "Seaborn palette for your graph."
-                                      "\nInput a valid name or select one from the output of the 'preset' component"
-                                      "\nDefault = 'deep'"),
-        hs.HopsBoolean("Plot", "P", "Plot me!")
-    ],
-    outputs=[
-        hs.HopsString("Base64 png", "img_str", "Image as base64 bitmap."),
-    ]
-)
-def rel_df(csv_df1: str, x_ax, y_ax, g_hue, g_palette="deep", plot=False):
-    # load csv to df
-    the_dataframe = csv_to_df(csv_df1)
-    if plot:
-        return all_graphs.no_default(the_dataframe, x_ax, y_ax, g_hue, g_palette)
 
+def json_parser(*json_str):
 
+    return [json.loads(f) for f in json_str]
 # ---------------------------------
 # RELATIONAL PLOTS
 
@@ -133,24 +132,49 @@ def rel_df(csv_df1: str, x_ax, y_ax, g_hue, g_palette="deep", plot=False):
     nickname="relDF",
     description="Relplot a dataframe",
     inputs=[
-        hs.HopsString("Dataframe", "Df", "Dataframe to relplot"),
-        hs.HopsString("X axis", "X", "What's your X value?"),
-        hs.HopsString("Y axis", "Y", "What's your Y value? Has to refer to numerical values"),
-        hs.HopsString("Hue", "h", "Column value to differentiate X and Y with"),
-        hs.HopsString("Palette", "p", "Seaborn palette for your graph."
-                                      "\nInput a valid name or select one from the output of the 'preset' component"
-                                      "\nDefault = 'deep'"),
-        hs.HopsBoolean("Plot", "P", "Plot me!")
+        hs.HopsString("Dataframe", "df", "Dataframe to relplot"),
+        hs.HopsString("X axis", "x", "What's your X value?"),
+        hs.HopsString(
+            "Y axis", "y", "What's your Y value? Has to refer to numerical values"),
+        hs.HopsString(
+            "Hue", "hue", "Column value to differentiate X and Y with"),
+        hs.HopsString(
+            "Size", "size", "Grouping variable that will produce elements with different sizes. Can be either categorical or numeric,"),
+        hs.HopsString("Style", "style", "Grouping variable that will produce elements with different styles. Can have a numeric dtype but will always be treated as categorical."),
+        hs.HopsString(
+            "Rows", "row", "Variables that define subsets to plot on different facets."),
+        hs.HopsString(
+            "Columns", "col", "Variables that define subsets to plot on different facets."),
+        hs.HopsInteger("Wrap", "col_wrap",
+                      "“Wrap” the column variable at this width, so that the column facets span multiple rows", default=-999),
+        hs.HopsString("Kind", "kind",
+                      "Options are 'scatter' and 'line'}.", default="scatter"),
+        hs.HopsString("Palette", "palette", "Seaborn palette for your graph."
+                      "\nInput a valid name or select one from the output of the 'preset' component"
+                      "\nDefault = 'deep'", default='deep'),
+        hs.HopsString("Figure Size", "fig_size",
+                      "String 'width; height' in inches", default=''),
+        hs.HopsString("Despine", "despine",
+                      "Despine your graph. Choose from: 'True', 'False', 'left', 'right', 'top'", default='{}'),
+        hs.HopsString("Additional Arguments", "add_args",
+                      "Additional seaborn plot arguments passed as a JSON Object", default='{}'),
+        hs.HopsString("Axis Arguments", "ax_args",
+                      "Additional matplotlib axis  arguments passed as a JSON Object", default='{}'),
+        hs.HopsBoolean("Plot", "Plot", "Plot me!")
     ],
     outputs=[
         hs.HopsString("Base64 png", "img_str", "Image as base64 bitmap."),
     ]
 )
-def rel_df(csv_df1: str, x_ax, y_ax, g_hue='', g_palette="deep", plot: bool = False):
+def rel_df(csv_df1: str, x_ax, y_ax, g_hue='', g_size='', g_style='', g_row='', g_col='', g_col_wrap=-999, g_kind='scatter', g_palette="deep",  g_fig_size='', g_despine='{}', g_add_args='{}', g_ax_args='{}', plot: bool = False):
     # load csv to df
     the_dataframe = csv_to_df(csv_df1)
+
+    g_despine, g_add_args, g_ax_args = json_parser(
+        g_despine, g_add_args, g_ax_args)
+
     if plot:
-        return all_graphs.rel(the_dataframe, x_ax, y_ax, g_hue, g_palette)
+        return all_graphs.rel(the_dataframe, x_ax, y_ax, g_hue, g_size, g_style, g_row, g_col, g_col_wrap, g_kind, g_palette, g_fig_size, g_despine, g_add_args, g_ax_args)
 
 
 @hops.component(
@@ -159,24 +183,38 @@ def rel_df(csv_df1: str, x_ax, y_ax, g_hue='', g_palette="deep", plot: bool = Fa
     nickname="scatterDF",
     description="Scatterplot a dataframe",
     inputs=[
-        hs.HopsString("Dataframe", "Df", "Dataframe to scatterplot"),
-        hs.HopsString("X axis", "X", "What's your X value?"),
-        hs.HopsString("Y axis", "Y", "What's your Y value? Has to refer to numerical values"),
-        hs.HopsString("Hue", "h", "Column value to differentiate X and Y with"),
-        hs.HopsString("Palette", "p", "Seaborn palette for your graph."
-                                      "\nInput a valid name or select one from the output of the 'preset' component"
-                                      "\nDefault = 'deep'"),
-        hs.HopsBoolean("Plot", "P", "Plot me!")
+        hs.HopsString("Dataframe", "df", "Dataframe to scatterplot"),
+        hs.HopsString("X axis", "x", "What's your X value?"),
+        hs.HopsString(
+            "Y axis", "y", "What's your Y value? Has to refer to numerical values"),
+        hs.HopsString(
+            "Hue", "hue", "Column value to differentiate X and Y with"),
+        hs.HopsString("Palette", "palette", "Seaborn palette for your graph."
+                      "\nInput a valid name or select one from the output of the 'preset' component"
+                      "\nDefault = 'deep'"),
+        hs.HopsString("Figure Size", "fig_size",
+                      "String 'width; height' in inches", default=''),
+        hs.HopsString("Despine", "despine",
+                      "Despine your graph. Choose from: 'True', 'False', 'left', 'right', 'top'", default='{}'),
+        hs.HopsString("Additional Arguments", "add_args",
+                      "Additional seaborn plot arguments passed as a JSON Object", default='{}'),
+        hs.HopsString("Axis Arguments", "ax_args",
+                      "Additional matplotlib axis  arguments passed as a JSON Object", default='{}'),
+        hs.HopsBoolean("Plot", "Plot", "Plot me!")
     ],
     outputs=[
         hs.HopsString("Base64 png", "img_str", "Image as base64 bitmap."),
     ]
 )
-def scatter_df(csv_df1: str, x_ax, y_ax, g_hue='', g_palette="deep", plot: bool = False):
+def scatter_df(csv_df1: str, x_ax, y_ax, g_hue='', g_palette="deep", g_fig_size='', g_despine='{}', g_add_args='{}', g_ax_args='{}', plot: bool = False):
     # load csv to df
     the_dataframe = csv_to_df(csv_df1)
+
+    g_despine, g_add_args, g_ax_args = json_parser(
+        g_despine, g_add_args, g_ax_args)
+
     if plot:
-        return all_graphs.scatter(the_dataframe, x_ax, y_ax, g_hue, g_palette)
+        return all_graphs.scatter(the_dataframe, x_ax, y_ax, g_hue, g_palette, g_fig_size, g_despine, g_add_args, g_ax_args)
 
 
 @hops.component(
@@ -185,27 +223,41 @@ def scatter_df(csv_df1: str, x_ax, y_ax, g_hue='', g_palette="deep", plot: bool 
     nickname="lineDF",
     description="Lineplot a dataframe",
     inputs=[
-        hs.HopsString("Dataframe", "Df", "Dataframe to lineplot"),
-        hs.HopsString("X axis", "X", "What's your X value?"),
-        hs.HopsString("Y axis", "Y", "What's your Y value? Has to refer to numerical values"),
-        hs.HopsString("Hue", "h", "Column value to differentiate X and Y with"),
-        hs.HopsString("Palette", "p", "Seaborn palette for your graph."
-                                      "\nInput a valid name or select one from the output of the 'preset' component"
-                                      "\nDefault = 'deep'"),
-        hs.HopsBoolean("Plot", "P", "Plot me!")
+        hs.HopsString("Dataframe", "df", "Dataframe to lineplot"),
+        hs.HopsString("X axis", "x", "What's your X value?"),
+        hs.HopsString(
+            "Y axis", "y", "What's your Y value? Has to refer to numerical values"),
+        hs.HopsString(
+            "Hue", "hue", "Column value to differentiate X and Y with"),
+        hs.HopsString("Palette", "palette", "Seaborn palette for your graph."
+                      "\nInput a valid name or select one from the output of the 'preset' component"
+                      "\nDefault = 'deep'"),
+        hs.HopsString("Figure Size", "fig_size",
+                      "String 'width; height' in inches", default=''),
+        hs.HopsString("Despine", "despine",
+                      "Despine your graph. Choose from: 'True', 'False', 'left', 'right', 'top'", default='{}'),
+        hs.HopsString("Additional Arguments", "add_args",
+                      "Additional seaborn plot arguments passed as a JSON Object", default='{}'),
+        hs.HopsString("Axis Arguments", "ax_args",
+                      "Additional matplotlib axis  arguments passed as a JSON Object", default='{}'),
+        hs.HopsBoolean("Plot", "Plot", "Plot me!")
     ],
     outputs=[
         hs.HopsString("Base64 png", "img_str", "Image as base64 bitmap."),
     ]
 )
-def line_df(csv_df1: str, x_ax, y_ax, g_hue='', g_palette="deep", plot: bool = False):
+def line_df(csv_df1: str, x_ax, y_ax, g_hue='', g_palette="deep", g_fig_size='', g_despine='{}', g_add_args='{}', g_ax_args='{}', plot: bool = False):
     # load csv to df
     the_dataframe = csv_to_df(csv_df1)
+
+    g_despine, g_add_args, g_ax_args = json_parser(
+        g_despine, g_add_args, g_ax_args)
+
     if plot:
-        return all_graphs.line(the_dataframe, x_ax, y_ax, g_hue, g_palette)
+        return all_graphs.line(the_dataframe, x_ax, y_ax, g_hue, g_palette, g_fig_size, g_despine, g_add_args, g_ax_args)
 
 
-# -------------------------------------------------
+# ------------------------------------------------r
 # DISTRIBUTION PLOTS
 
 
@@ -215,29 +267,50 @@ def line_df(csv_df1: str, x_ax, y_ax, g_hue='', g_palette="deep", plot: bool = F
     nickname="disDF",
     description="Displot a dataframe in one dimension",
     inputs=[
-        hs.HopsString("Dataframe", "Df", "Dataframe to displot"),
-        hs.HopsString("X axis", "X", "What's your X value?"),
+        hs.HopsString("Dataframe", "df", "Dataframe to displot"),
+        hs.HopsString("X axis", "x", "What's your X value?"),
         hs.HopsString("Y axis", "Y", "What's your Y value?"),
-        hs.HopsString("Hue", "h", "Column value to differentiate X and Y with"),
-        hs.HopsString("Kind", "k", "Selects the underlying plotting function and determines the additional set of "
-                                   "valid parameters.\nChoose from 'hist', 'kde' or 'ecdf' \nDefault: 'hist'"),
-        hs.HopsBoolean("Rug", "r", "If True, show each observation with marginal ticks"),
-        hs.HopsBoolean("Legend", "l", "If False, suppress the legend for semantic variables"),
-        hs.HopsString("Palette", "p", "Seaborn palette for your graph."
-                                      "\nInput a valid name or select one from the output of the 'preset' component"
-                                      "\nDefault = 'deep'"),
-        hs.HopsBoolean("Plot", "P", "Plot me!")
+        hs.HopsString(
+            "Hue", "hue", "Column value to differentiate X and Y with"),
+        hs.HopsString(
+            "Rows", "row", "Variables that define subsets to plot on different facets."),
+        hs.HopsString(
+            "Columns", "col", "Variables that define subsets to plot on different facets."),
+        hs.HopsInteger("Wrap", "col_wrap",
+                      "“Wrap” the column variable at this width, so that the column facets span multiple rows", default=-999),
+        hs.HopsString("Kind", "kind", "Selects the underlying plotting function and determines the additional set of "
+                      "valid parameters.\nChoose from 'hist', 'kde' or 'ecdf' \nDefault: 'hist'", default='hist'),
+        hs.HopsBoolean(
+            "Rug", "rug", "If True, show each observation with marginal ticks"),
+        hs.HopsBoolean(
+            "Legend", "legend", "If False, suppress the legend for semantic variables"),
+        hs.HopsString("Palette", "palette", "Seaborn palette for your graph."
+                      "\nInput a valid name or select one from the output of the 'preset' component"
+                      "\nDefault = 'deep'"),
+        hs.HopsString("Figure Size", "fig_size",
+                      "String 'width; height' in inches", default=''),
+        hs.HopsString("Despine", "despine",
+                      "Despine your graph. Choose from: 'True', 'False', 'left', 'right', 'top'", default='{}'),
+        hs.HopsString("Additional Arguments", "add_args",
+                      "Additional seaborn plot arguments passed as a JSON Object", default='{}'),
+        hs.HopsString("Axis Arguments", "ax_args",
+                      "Additional matplotlib axis  arguments passed as a JSON Object", default='{}'),
+        hs.HopsBoolean("Plot", "Plot", "Plot me!")
     ],
     outputs=[
         hs.HopsString("Base64 png", "img_str", "Image as base64 bitmap."),
     ]
 )
-def dis_df(csv_df1: str, x_ax, y_ax='', g_hue='', g_kind='hist', g_rug=False, g_legend=True, g_palette="deep",
+def dis_df(csv_df1: str, x_ax, y_ax='', g_hue='', g_row='', g_col='', g_col_wrap=-999, g_kind='hist', g_rug=False, g_legend=True, g_palette="deep", g_fig_size='', g_despine='{}', g_add_args='{}', g_ax_args='{}',
            plot: bool = False):
     # load csv to df
     the_dataframe = csv_to_df(csv_df1)
+
+    g_despine, g_add_args, g_ax_args = json_parser(
+        g_despine, g_add_args, g_ax_args)
+
     if plot:
-        return all_graphs.dis(the_dataframe, x_ax, y_ax, g_hue, g_kind, g_rug, g_legend, g_palette)
+        return all_graphs.dis(the_dataframe, x_ax, y_ax, g_hue, g_row, g_col, g_col_wrap, g_kind, g_rug, g_legend, g_palette, g_fig_size, g_despine, g_add_args, g_ax_args)
 
 
 @hops.component(
@@ -246,43 +319,59 @@ def dis_df(csv_df1: str, x_ax, y_ax='', g_hue='', g_kind='hist', g_rug=False, g_
     nickname="histDF_1",
     description="Histplot a dataframe",
     inputs=[
-        hs.HopsString("Dataframe", "Df", "Dataframe to histplot"),
-        hs.HopsString("X axis", "X", "What's your X value?"),
+        hs.HopsString("Dataframe", "df", "Dataframe to histplot"),
+        hs.HopsString("X axis", "x", "What's your X value?"),
         hs.HopsString("Y axis", "y", "What's your Y value? (optional)"),
-        hs.HopsString("Hue", "h", "Column value to differentiate X and Y with"),
-        hs.HopsString("Stat", "s", "Aggregate statistic to compute in each bin"
-                                   "\nChoose from 'count', 'frequency', 'probability', 'percent' or 'density'"
-                                   "\nDefault: 'count'"),
-        hs.HopsBoolean("Cumulative", "c", "If True, plot the cumulative counts as bins increase."),
-        hs.HopsString("Multiple", "m", "Approach to resolving multiple elements when semantic mapping creates subsets. "
-                                       "Only relevant with univariate data"
-                                       "\nChoose from 'layer', 'dodge', 'stack', 'fill' \nDefault: 'layer'"),
-        hs.HopsString("Element", "e", "Visual representation of the histogram statistic. Only relevant with univariate "
-                                      "data \nChoose from 'bars', 'step' or 'poly' \nDefault: 'bars'"),
-        hs.HopsBoolean("Fill", "f", "If True, fill in the space under the histogram. Only relevant with "
-                                    "univariate data."),
-        hs.HopsNumber("Shrink", "s", "Scale the width of each bar relative to the binwidth by this factor."
-                                     "Only relevant with univariate data"),
-        hs.HopsBoolean("KDE", "k", "If True, compute a kernel density estimate to smooth the distribution and show on "
-                                   "the plot as (one or more) line(s). Only relevant with univariate data."),
-        hs.HopsBoolean("Legend", "l", "If False, suppress the legend for semantic variables"),
-        hs.HopsString("Palette", "p", "Seaborn palette for your graph."
-                                      "\nInput a valid name or select one from the output of the 'preset' component"
-                                      "\nDefault = 'deep'"),
-        hs.HopsBoolean("Plot", "P", "Plot me!")
+        hs.HopsString(
+            "Hue", "hue", "Column value to differentiate X and Y with"),
+        hs.HopsString("Stat", "stat", "Aggregate statistic to compute in each bin"
+                      "\nChoose from 'count', 'frequency', 'probability', 'percent' or 'density'"
+                      "\nDefault: 'count'"),
+        hs.HopsBoolean("Cumulative", "cumulative",
+                       "If True, plot the cumulative counts as bins increase."),
+        hs.HopsString("Multiple", "multiple", "Approach to resolving multiple elements when semantic mapping creates subsets. "
+                      "Only relevant with univariate data"
+                      "\nChoose from 'layer', 'dodge', 'stack', 'fill' \nDefault: 'layer'"),
+        hs.HopsString("Element", "element", "Visual representation of the histogram statistic. Only relevant with univariate "
+                      "data \nChoose from 'bars', 'step' or 'poly' \nDefault: 'bars'"),
+        hs.HopsBoolean("Fill", "fill", "If True, fill in the space under the histogram. Only relevant with "
+                       "univariate data."),
+        hs.HopsNumber("Shrink", "shrink", "Scale the width of each bar relative to the binwidth by this factor."
+                      "Only relevant with univariate data"),
+        hs.HopsBoolean("KDE", "kde", "If True, compute a kernel density estimate to smooth the distribution and show on "
+                       "the plot as (one or more) line(s). Only relevant with univariate data."),
+        hs.HopsBoolean(
+            "Legend", "legend", "If False, suppress the legend for semantic variables"),
+        hs.HopsString("Palette", "palette", "Seaborn palette for your graph."
+                      "\nInput a valid name or select one from the output of the 'preset' component"
+                      "\nDefault = 'deep'"),
+        hs.HopsString("Figure Size", "fig_size",
+                      "String 'width; height' in inches", default=''),
+        hs.HopsString("Despine", "despine",
+                      "Despine your graph. Choose from: 'True', 'False', 'left', 'right', 'top'", default='{}'),
+        hs.HopsString("Additional Arguments", "add_args",
+                      "Additional seaborn plot arguments passed as a JSON Object", default='{}'),
+        hs.HopsString("Axis Arguments", "ax_args",
+                      "Additional matplotlib axis  arguments passed as a JSON Object", default='{}'),
+        hs.HopsBoolean("Plot", "Plot", "Plot me!")
     ],
     outputs=[
         hs.HopsString("Base64 png", "img_str", "Image as base64 bitmap."),
     ]
 )
 def hist_df(csv_df1: str, x_ax, y_ax='', g_hue='', g_stat='count', g_cumulative=False, g_multiple='layer',
-            g_element='bars', g_fill=True, g_shrink=1, g_kde=False, g_legend=True, g_palette="deep",
+            g_element='bars', g_fill=True, g_shrink=1, g_kde=False, g_legend=True, g_palette="deep", g_fig_size='', g_despine='{}', g_add_args='{}', g_ax_args='{}',
             plot: bool = False):
+
     # load csv to df
     the_dataframe = csv_to_df(csv_df1)
+
+    g_despine, g_add_args, g_ax_args = json_parser(
+        g_despine, g_add_args, g_ax_args)
+
     if plot:
         return all_graphs.hist(the_dataframe, x_ax, y_ax, g_hue, g_stat, g_cumulative, g_multiple, g_element, g_fill, g_shrink,
-                        g_kde, g_legend, g_palette)
+                               g_kde, g_legend, g_palette, g_fig_size, g_despine, g_add_args, g_ax_args)
 
 
 @hops.component(
@@ -291,35 +380,48 @@ def hist_df(csv_df1: str, x_ax, y_ax='', g_hue='', g_stat='count', g_cumulative=
     nickname="kdeDF",
     description="Kdeplot a dataframe",
     inputs=[
-        hs.HopsString("Dataframe", "Df", "Dataframe to kdeplot"),
-        hs.HopsString("X axis", "X", "What's your X value? Has to be numerical"),
-        hs.HopsString("Y axis", "y", "What's your Y value? Has to be numerical (but is optional)"),
-        hs.HopsString("Hue", "h", "Column value to differentiate X and Y with"),
-        hs.HopsNumber("Cut", "c", "Factor, multiplied by the smoothing bandwidth, that determines how far the "
-                                  "evaluation grid extends past the extreme datapoints. "
-                                  "\nWhen set to 0, truncate the curve at the data limits."),
-        hs.HopsBoolean("Cumulative", "c", "If True, estimate a cumulative distribution function"),
-        hs.HopsString("Multiple", "m", "Approach to resolving multiple elements when semantic mapping creates subsets. "
-                                       "Only relevant with univariate data"
-                                       "\nChoose from 'layer', 'stack', 'fill' \nDefault: 'layer'"),
-        hs.HopsBoolean("Common norm", "cn", "If True, scale each conditional density by the number of observations such"
-                                            "that the total area under all densities sums to 1. "
-                                            "\nOtherwise, normalize each density independently."),
-        hs.HopsBoolean("Common grid", "cg", "If True, use the same evaluation grid for each kernel density estimate. "
-                                            "\nOnly relevant with univariate data."),
-        hs.HopsInteger("Levels", "l", "Number of contour levels or values to draw contours at."
-                                      "\nLevels correspond to iso-proportions of the density: e.g., 20% of the "
-                                      "probability mass will lie below the contour drawn for 0.2. Only relevant with "
-                                      "bivariate data."),
-        hs.HopsNumber("Thresh", "t", "Lowest iso-proportion level at which to draw a contour line. Ignored when levels "
-                                     "is a vector. Only relevant with bivariate data."),
-        hs.HopsNumber("Alpha", "a", "Alpha value for the fill option"),
-        hs.HopsBoolean("Fill", "f", "Fill ?"),
-        hs.HopsBoolean("Legend", "l", "If False, suppress the legend for semantic variables"),
-        hs.HopsString("Palette", "p", "Seaborn palette for your graph."
-                                      "\nInput a valid name or select one from the output of the 'preset' component"
-                                      "\nDefault = 'deep'"),
-        hs.HopsBoolean("Plot", "P", "Plot me!")
+        hs.HopsString("Dataframe", "df", "Dataframe to kdeplot"),
+        hs.HopsString(
+            "X axis", "x", "What's your X value? Has to be numerical"),
+        hs.HopsString(
+            "Y axis", "y", "What's your Y value? Has to be numerical (but is optional)"),
+        hs.HopsString(
+            "Hue", "hue", "Column value to differentiate X and Y with"),
+        hs.HopsNumber("Cut", "cut", "Factor, multiplied by the smoothing bandwidth, that determines how far the "
+                      "evaluation grid extends past the extreme datapoints. "
+                      "\nWhen set to 0, truncate the curve at the data limits."),
+        hs.HopsBoolean("Cumulative", "cumulative",
+                       "If True, estimate a cumulative distribution function"),
+        hs.HopsString("Multiple", "multiple", "Approach to resolving multiple elements when semantic mapping creates subsets. "
+                      "Only relevant with univariate data"
+                      "\nChoose from 'layer', 'stack', 'fill' \nDefault: 'layer'"),
+        hs.HopsBoolean("Common norm", "common_norm", "If True, scale each conditional density by the number of observations such"
+                       "that the total area under all densities sums to 1. "
+                       "\nOtherwise, normalize each density independently."),
+        hs.HopsBoolean("Common grid", "common_grid", "If True, use the same evaluation grid for each kernel density estimate. "
+                       "\nOnly relevant with univariate data."),
+        hs.HopsInteger("Levels", "levels", "Number of contour levels or values to draw contours at."
+                       "\nLevels correspond to iso-proportions of the density: e.g., 20% of the "
+                       "probability mass will lie below the contour drawn for 0.2. Only relevant with "
+                       "bivariate data."),
+        hs.HopsNumber("Thresh", "thresh", "Lowest iso-proportion level at which to draw a contour line. Ignored when levels "
+                      "is a vector. Only relevant with bivariate data."),
+        hs.HopsNumber("Alpha", "alpha", "Alpha value for the fill option"),
+        hs.HopsBoolean("Fill", "fill", "Fill ?"),
+        hs.HopsBoolean(
+            "Legend", "legend", "If False, suppress the legend for semantic variables"),
+        hs.HopsString("Palette", "palette", "Seaborn palette for your graph."
+                      "\nInput a valid name or select one from the output of the 'preset' component"
+                      "\nDefault = 'deep'"),
+        hs.HopsString("Figure Size", "fig_size",
+                      "String 'width; height' in inches", default=''),
+        hs.HopsString("Despine", "despine",
+                      "Despine your graph. Choose from: 'True', 'False', 'left', 'right', 'top'", default='{}'),
+        hs.HopsString("Additional Arguments", "add_args",
+                      "Additional seaborn plot arguments passed as a JSON Object", default='{}'),
+        hs.HopsString("Axis Arguments", "ax_args",
+                      "Additional matplotlib axis  arguments passed as a JSON Object", default='{}'),
+        hs.HopsBoolean("Plot", "Plot", "Plot me!")
     ],
     outputs=[
         hs.HopsString("Base64 png", "img_str", "Image as base64 bitmap."),
@@ -327,12 +429,16 @@ def hist_df(csv_df1: str, x_ax, y_ax='', g_hue='', g_stat='count', g_cumulative=
 )
 def kde_df(csv_df1: str, x_ax, y_ax='', g_hue='', g_cut=3, g_cumulative=False, g_multiple='layer', g_common_norm=True,
            g_common_grid=False, g_levels=10, g_thresh=0.05, g_alpha=1, g_fill=False, g_legend=True,
-           g_palette="deep", plot: bool = False):
+           g_palette="deep", g_fig_size='', g_despine='{}', g_add_args='{}', g_ax_args='{}', plot: bool = False):
     # load csv to df
     the_dataframe = csv_to_df(csv_df1)
+
+    g_despine, g_add_args, g_ax_args = json_parser(
+        g_despine, g_add_args, g_ax_args)
+
     if plot:
         return all_graphs.kde(the_dataframe, x_ax, y_ax, g_hue, g_cut, g_cumulative, g_multiple, g_common_norm, g_common_grid,
-                       g_levels, g_thresh, g_alpha, g_fill, g_legend, g_palette)
+                              g_levels, g_thresh, g_alpha, g_fill, g_legend, g_palette, g_fig_size, g_despine, g_add_args, g_ax_args)
 
 
 # -------------------------------------------------
@@ -345,32 +451,53 @@ def kde_df(csv_df1: str, x_ax, y_ax='', g_hue='', g_cut=3, g_cumulative=False, g
     nickname="catDF",
     description="Catplot a dataframe",
     inputs=[
-        hs.HopsString("Dataframe", "Df", "Dataframe to catplot"),
-        hs.HopsString("X axis", "X", "What's your X value?"),
-        hs.HopsString("Y axis", "Y", "What's your Y value? Has to refer to numerical values"),
-        hs.HopsString("Hue", "h", "Column value to differentiate X and Y with"),
-        hs.HopsString("ci", "c", "Confidence interval can be set to 'sd' as for 'standard deviation'"),
-        hs.HopsInteger("Seed", "s", "Seed for reproducible bootstrapping"),
-        hs.HopsString("Kind", "k", "The kind of plot to draw, corresponds to the name of a categorical axes-level "
-                                   "plotting function"
-                                   "\nChoose from: 'strip', 'swarm', 'box', 'violin', 'boxen', 'point', 'bar', "
-                                   "or 'count'"
-                                   "\nDefault = 'strip'"),
-        hs.HopsString("Palette", "p", "Seaborn palette for your graph."
-                                      "\nInput a valid name or select one from the output of the 'preset' component"
-                                      "\nDefault = 'deep'"),
-        hs.HopsBoolean("Plot", "P", "Plot me!")
+        hs.HopsString("Dataframe", "df", "Dataframe to catplot"),
+        hs.HopsString("X axis", "x", "What's your X value?"),
+        hs.HopsString(
+            "Y axis", "y", "What's your Y value? Has to refer to numerical values"),
+        hs.HopsString(
+            "Hue", "hue", "Column value to differentiate X and Y with"),
+        hs.HopsString(
+            "Rows", "row", "Variables that define subsets to plot on different facets."),
+        hs.HopsString(
+            "Columns", "col", "Variables that define subsets to plot on different facets."),
+        hs.HopsInteger("Wrap", "col_wrap",
+                      "“Wrap” the column variable at this width, so that the column facets span multiple rows", default=-999),
+        hs.HopsString(
+            "Coinfidence Interval", "ci", "Confidence interval can be set to 'sd' as for 'standard deviation'"),
+        hs.HopsInteger("Seed", "seed", "Seed for reproducible bootstrapping"),
+        hs.HopsString("Kind", "kind", "The kind of plot to draw, corresponds to the name of a categorical axes-level "
+                      "plotting function"
+                      "\nChoose from: 'strip', 'swarm', 'box', 'violin', 'boxen', 'point', 'bar', "
+                      "or 'count'"
+                      "\nDefault = 'strip'"),
+        hs.HopsString("Palette", "palette", "Seaborn palette for your graph."
+                      "\nInput a valid name or select one from the output of the 'preset' component"
+                      "\nDefault = 'deep'"),
+        hs.HopsString("Figure Size", "fig_size",
+                      "String 'width; height' in inches", default=''),
+        hs.HopsString("Despine", "despine",
+                      "Despine your graph. Choose from: 'True', 'False', 'left', 'right', 'top'", default='{}'),
+        hs.HopsString("Additional Arguments", "add_args",
+                      "Additional seaborn plot arguments passed as a JSON Object", default='{}'),
+        hs.HopsString("Axis Arguments", "ax_args",
+                      "Additional matplotlib axis  arguments passed as a JSON Object", default='{}'),
+        hs.HopsBoolean("Plot", "Plot", "Plot me!")
     ],
     outputs=[
         hs.HopsString("Base64 png", "img_str", "Image as base64 bitmap."),
     ]
 )
-def cat_df(csv_df1: str, x_ax, y_ax, g_hue='', g_ci="None", g_seed=2, g_kind="strip", g_palette="deep",
+def cat_df(csv_df1: str, x_ax, y_ax, g_hue='', g_row='', g_col='', g_col_wrap=-999, g_ci="None", g_seed=2, g_kind="strip", g_palette="deep", g_fig_size='', g_despine='{}', g_add_args='{}', g_ax_args='{}',
            plot: bool = False):
     # load csv to df
     the_dataframe = csv_to_df(csv_df1)
+
+    g_despine, g_add_args, g_ax_args = json_parser(
+        g_despine, g_add_args, g_ax_args)
+
     if plot:
-        return all_graphs.cat(the_dataframe, x_ax, y_ax, g_hue, g_ci, g_seed, g_kind, g_palette)
+        return all_graphs.cat(the_dataframe, x_ax, y_ax, g_hue, g_row, g_col, g_col_wrap, g_ci, g_seed, g_kind, g_palette, g_fig_size, g_despine, g_add_args, g_ax_args)
 
 
 @hops.component(
@@ -379,26 +506,42 @@ def cat_df(csv_df1: str, x_ax, y_ax, g_hue='', g_ci="None", g_seed=2, g_kind="st
     nickname="stripDF",
     description="Stripplot a dataframe",
     inputs=[
-        hs.HopsString("Dataframe", "Df", "Dataframe to stripplot"),
-        hs.HopsString("X axis", "X", "What's your X value?"),
-        hs.HopsString("Y axis", "Y", "What's your Y value? Has to refer to numerical values"),
-        hs.HopsString("Hue", "h", "Column value to differentiate X and Y with"),
-        hs.HopsNumber("Jitter", "j", "Amount of jitter (only along the categorical axis) to apply"),
-        hs.HopsString("Palette", "p", "Seaborn palette for your graph."
-                                      "\nInput a valid name or select one from the output of the 'preset' component"
-                                      "\nDefault = 'deep'"),
-        hs.HopsNumber("Size", "s", "Radius of the markers, in points"),
-        hs.HopsBoolean("Plot", "P", "Plot me!")
+        hs.HopsString("Dataframe", "df", "Dataframe to stripplot"),
+        hs.HopsString("X axis", "x", "What's your X value?"),
+        hs.HopsString(
+            "Y axis", "y", "What's your Y value? Has to refer to numerical values"),
+        hs.HopsString(
+            "Hue", "hue", "Column value to differentiate X and Y with"),
+        hs.HopsNumber(
+            "Jitter", "jitter", "Amount of jitter (only along the categorical axis) to apply"),
+        hs.HopsNumber("Size", "marker_size",
+                      "Radius of the markers, in points"),
+        hs.HopsString("Palette", "palette", "Seaborn palette for your graph."
+                      "\nInput a valid name or select one from the output of the 'preset' component"
+                      "\nDefault = 'deep'"),
+        hs.HopsString("Figure Size", "fig_size",
+                      "String 'width; height' in inches", default=''),
+        hs.HopsString("Despine", "despine",
+                      "Despine your graph. Choose from: 'True', 'False', 'left', 'right', 'top'", default='{}'),
+        hs.HopsString("Additional Arguments", "add_args",
+                      "Additional seaborn plot arguments passed as a JSON Object", default='{}'),
+        hs.HopsString("Axis Arguments", "ax_args",
+                      "Additional matplotlib axis  arguments passed as a JSON Object", default='{}'),
+        hs.HopsBoolean("Plot", "Plot", "Plot me!")
     ],
     outputs=[
         hs.HopsString("Base64 png", "img_str", "Image as base64 bitmap."),
     ]
 )
-def strip_df(csv_df1: str, x_ax, y_ax, g_hue='', g_jitter=True, g_palette="deep", g_size=2, plot: bool = False):
+def strip_df(csv_df1: str, x_ax, y_ax, g_hue='', g_jitter=True, g_size=2, g_palette="deep", g_fig_size='', g_despine='{}', g_add_args='{}', g_ax_args='{}', plot: bool = False):
     # load csv to df
     the_dataframe = csv_to_df(csv_df1)
+
+    g_despine, g_add_args, g_ax_args = json_parser(
+        g_despine, g_add_args, g_ax_args)
+
     if plot:
-        return all_graphs.strip(the_dataframe, x_ax, y_ax, g_hue, g_jitter, g_palette, g_size)
+        return all_graphs.strip(the_dataframe, x_ax, y_ax, g_hue, g_jitter, g_size, g_palette, g_fig_size, g_despine, g_add_args, g_ax_args)
 
 
 @hops.component(
@@ -407,27 +550,42 @@ def strip_df(csv_df1: str, x_ax, y_ax, g_hue='', g_jitter=True, g_palette="deep"
     nickname="swarmDF",
     description="Swarmplot a dataframe",
     inputs=[
-        hs.HopsString("Dataframe", "Df", "Dataframe to swarmplot"),
-        hs.HopsString("X axis", "X", "What's your X value?"),
-        hs.HopsString("Y axis", "Y", "What's your Y value? Has to refer to numerical values"),
-        hs.HopsString("Hue", "h", "Column value to differentiate X and Y with"),
-        hs.HopsBoolean("Dodge", "d", "Setting this to True will separate the strips for different hue levels along "
-                                     "the categorical axis"),
-        hs.HopsString("Palette", "p", "Seaborn palette for your graph."
-                                      "\nInput a valid name or select one from the output of the 'preset' component"
-                                      "\nDefault = 'deep'"),
-        hs.HopsNumber("Size", "s", "Radius of the markers, in points"),
-        hs.HopsBoolean("Plot", "P", "Plot me!")
+        hs.HopsString("Dataframe", "df", "Dataframe to swarmplot"),
+        hs.HopsString("X axis", "x", "What's your X value?"),
+        hs.HopsString(
+            "Y axis", "y", "What's your Y value? Has to refer to numerical values"),
+        hs.HopsString(
+            "Hue", "hue", "Column value to differentiate X and Y with"),
+        hs.HopsBoolean("Dodge", "dodge", "Setting this to True will separate the strips for different hue levels along "
+                       "the categorical axis"),
+        hs.HopsNumber("Size", "marker_size",
+                      "Radius of the markers, in points"),
+        hs.HopsString("Palette", "palette", "Seaborn palette for your graph."
+                      "\nInput a valid name or select one from the output of the 'preset' component"
+                      "\nDefault = 'deep'"),
+        hs.HopsString("Figure Size", "fig_size",
+                      "String 'width; height' in inches", default=''),
+        hs.HopsString("Despine", "despine",
+                      "Despine your graph. Choose from: 'True', 'False', 'left', 'right', 'top'", default='{}'),
+        hs.HopsString("Additional Arguments", "add_args",
+                      "Additional seaborn plot arguments passed as a JSON Object", default='{}'),
+        hs.HopsString("Axis Arguments", "ax_args",
+                      "Additional matplotlib axis  arguments passed as a JSON Object", default='{}'),
+        hs.HopsBoolean("Plot", "Plot", "Plot me!")
     ],
     outputs=[
         hs.HopsString("Base64 png", "img_str", "Image as base64 bitmap."),
     ]
 )
-def swarm_df(csv_df1: str, x_ax, y_ax, g_hue='', g_dodge=False, g_palette="deep", g_size=2, plot: bool = False):
+def swarm_df(csv_df1: str, x_ax, y_ax, g_hue='', g_dodge=False, g_size=2, g_palette="deep", g_fig_size='', g_despine='{}', g_add_args='{}', g_ax_args='{}', plot: bool = False):
     # load csv to df
     the_dataframe = csv_to_df(csv_df1)
+
+    g_despine, g_add_args, g_ax_args = json_parser(
+        g_despine, g_add_args, g_ax_args)
+
     if plot:
-        return all_graphs.swarm(the_dataframe, x_ax, y_ax, g_hue, g_dodge, g_palette, g_size)
+        return all_graphs.swarm(the_dataframe, x_ax, y_ax, g_hue, g_dodge, g_size, g_palette, g_fig_size, g_despine, g_add_args, g_ax_args)
 
 
 @hops.component(
@@ -436,24 +594,39 @@ def swarm_df(csv_df1: str, x_ax, y_ax, g_hue='', g_dodge=False, g_palette="deep"
     nickname="boxDF",
     description="Boxplot a dataframe",
     inputs=[
-        hs.HopsString("Dataframe", "Df", "Dataframe to boxplot"),
-        hs.HopsString("X axis", "X", "What's your X value?"),
-        hs.HopsString("Y axis", "Y", "What's your Y value? Has to refer to numerical values"),
-        hs.HopsString("Hue", "h", "Column value to differentiate X and Y with"),
-        hs.HopsString("Palette", "p", "Seaborn palette for your graph."
-                                      "\nInput a valid name or select one from the output of the 'preset' component"
-                                      "\nDefault = 'deep'"),
-        hs.HopsBoolean("Plot", "P", "Plot me!")
+        hs.HopsString("Dataframe", "df", "Dataframe to boxplot"),
+        hs.HopsString("X axis", "x", "What's your X value?"),
+        hs.HopsString(
+            "Y axis", "y", "What's your Y value? Has to refer to numerical values"),
+        hs.HopsString(
+            "Hue", "hue", "Column value to differentiate X and Y with"),
+        hs.HopsString("Palette", "palette", "Seaborn palette for your graph."
+                      "\nInput a valid name or select one from the output of the 'preset' component"
+                      "\nDefault = 'deep'"),
+        hs.HopsString("Figure Size", "fig_size",
+                      "String 'width; height' in inches", default=''),
+        hs.HopsString("Despine", "despine",
+                      "Despine your graph. Choose from: 'True', 'False', 'left', 'right', 'top'", default='{}'),
+        hs.HopsString("Additional Arguments", "add_args",
+                      "Additional seaborn plot arguments passed as a JSON Object", default='{}'),
+        hs.HopsString("Axis Arguments", "ax_args",
+                      "Additional matplotlib axis  arguments passed as a JSON Object", default='{}'),
+        hs.HopsBoolean("Plot", "Plot", "Plot me!")
     ],
     outputs=[
         hs.HopsString("Base64 png", "img_str", "Image as base64 bitmap."),
     ]
 )
-def box_df(csv_df1: str, x_ax, y_ax, g_hue='', g_palette="deep", plot: bool = False):
+def box_df(csv_df1: str, x_ax, y_ax, g_hue='', g_palette="deep", g_fig_size='', g_despine='{}', g_add_args='{}', g_ax_args='{}', plot: bool = False):
     # load csv to df
     the_dataframe = csv_to_df(csv_df1)
+
+    g_despine, g_add_args, g_ax_args = json_parser(
+        g_despine, g_add_args, g_ax_args)
+
     if plot:
-        img = all_graphs.box(the_dataframe, x_ax, y_ax, g_hue, g_palette)
+        img = all_graphs.box(the_dataframe, x_ax, y_ax, g_hue,
+                             g_palette, g_fig_size, g_despine, g_add_args, g_ax_args)
         return img
 
 
@@ -463,33 +636,48 @@ def box_df(csv_df1: str, x_ax, y_ax, g_hue='', g_palette="deep", plot: bool = Fa
     nickname="violinDF",
     description="Violinplot a dataframe",
     inputs=[
-        hs.HopsString("Dataframe", "Df", "Dataframe to violinplot"),
-        hs.HopsString("X axis", "X", "What's your X value?"),
-        hs.HopsString("Y axis", "Y", "What's your Y value? Has to refer to numerical values"),
-        hs.HopsString("Hue", "h", "Column value to differentiate X and Y with"),
-        hs.HopsNumber("bw", "b", "The scale factor to use when computing the kernel bandwidth"),
-        hs.HopsString("Inner", "i", "Representation of the datapoints in the violin interior"
-                                    "\nChoose from 'box', 'quartile', 'point', or 'stick'"
-                                    "\nDefault = 'box'"),
-        hs.HopsBoolean("Split", "s", "When using hue nesting with a variable that takes two levels, "
-                                     "set to True for easier distributions comparison"),
-        hs.HopsBoolean("Dodge", "d", "When hue nesting is used, whether elements should be shifted "
-                                     "along the categorical axis"),
-        hs.HopsString("Palette", "p", "Seaborn palette for your graph."
-                                      "\nInput a valid name or select one from the output of the 'preset' component"
-                                      "\nDefault = 'deep'"),
-        hs.HopsBoolean("Plot", "P", "Plot me!")
+        hs.HopsString("Dataframe", "df", "Dataframe to violinplot"),
+        hs.HopsString("X axis", "x", "What's your X value?"),
+        hs.HopsString(
+            "Y axis", "y", "What's your Y value? Has to refer to numerical values"),
+        hs.HopsString(
+            "Hue", "hue", "Column value to differentiate X and Y with"),
+        hs.HopsNumber(
+            "bw", "b", "The scale factor to use when computing the kernel bandwidth"),
+        hs.HopsString("Inner", "inner", "Representation of the datapoints in the violin interior"
+                      "\nChoose from 'box', 'quartile', 'point', or 'stick'"
+                      "\nDefault = 'box'"),
+        hs.HopsBoolean("Split", "split", "When using hue nesting with a variable that takes two levels, "
+                       "set to True for easier distributions comparison"),
+        hs.HopsBoolean("Dodge", "dodge", "When hue nesting is used, whether elements should be shifted "
+                       "along the categorical axis"),
+        hs.HopsString("Palette", "palette", "Seaborn palette for your graph."
+                      "\nInput a valid name or select one from the output of the 'preset' component"
+                      "\nDefault = 'deep'"),
+        hs.HopsString("Figure Size", "fig_size",
+                      "String 'width; height' in inches", default=''),
+        hs.HopsString("Despine", "despine",
+                      "Despine your graph. Choose from: 'True', 'False', 'left', 'right', 'top'", default='{}'),
+        hs.HopsString("Additional Arguments", "add_args",
+                      "Additional seaborn plot arguments passed as a JSON Object", default='{}'),
+        hs.HopsString("Axis Arguments", "ax_args",
+                      "Additional matplotlib axis  arguments passed as a JSON Object", default='{}'),
+        hs.HopsBoolean("Plot", "Plot", "Plot me!")
     ],
     outputs=[
         hs.HopsString("Base64 png", "img_str", "Image as base64 bitmap."),
     ]
 )
-def violin_df(csv_df1: str, x_ax, y_ax, g_hue='', g_bw=1, g_inner="box", g_split=False, g_dodge=True, g_palette="deep",
+def violin_df(csv_df1: str, x_ax, y_ax, g_hue='', g_bw=1, g_inner="box", g_split=False, g_dodge=True, g_palette="deep", g_fig_size='', g_despine='{}', g_add_args='{}', g_ax_args='{}',
               plot: bool = False):
     # load csv to df
     the_dataframe = csv_to_df(csv_df1)
+
+    g_despine, g_add_args, g_ax_args = json_parser(
+        g_despine, g_add_args, g_ax_args)
+
     if plot:
-        return all_graphs.violin(the_dataframe, x_ax, y_ax, g_hue, g_bw, g_inner, g_split, g_dodge, g_palette)
+        return all_graphs.violin(the_dataframe, x_ax, y_ax, g_hue, g_bw, g_inner, g_split, g_dodge, g_palette, g_fig_size, g_despine, g_add_args, g_ax_args)
 
 
 @hops.component(
@@ -498,31 +686,45 @@ def violin_df(csv_df1: str, x_ax, y_ax, g_hue='', g_bw=1, g_inner="box", g_split
     nickname="boxenDF",
     description="Boxenplot a dataframe",
     inputs=[
-        hs.HopsString("Dataframe", "Df", "Dataframe to boxenplot"),
-        hs.HopsString("X axis", "X", "What's your X value?"),
-        hs.HopsString("Y axis", "Y", "What's your Y value? Has to refer to numerical values"),
-        hs.HopsString("Hue", "h", "Column value to differentiate X and Y with"),
-        hs.HopsBoolean("Dodge", "d", "When hue nesting is used, whether elements should be shifted "
-                                     "along the categorical axis"),
-        hs.HopsString("K depth", "k", "The number of boxes, and by extension number of percentiles, to draw"
-                                      "\nChoose from: 'tukey', 'proportion', trustworthy', or 'full'"
-                                      "\nDefault = 'tukey'"),
-        hs.HopsString("Palette", "p", "Seaborn palette for your graph."
-                                      "\nInput a valid name or select one from the output of the 'preset' component"
-                                      "\nDefault = 'deep'"),
-        hs.HopsBoolean("Fliers", "f", "Show fliers, Default = True"),
-        hs.HopsBoolean("Plot", "P", "Plot me!")
+        hs.HopsString("Dataframe", "df", "Dataframe to boxenplot"),
+        hs.HopsString("X axis", "x", "What's your X value?"),
+        hs.HopsString(
+            "Y axis", "y", "What's your Y value? Has to refer to numerical values"),
+        hs.HopsString(
+            "Hue", "hue", "Column value to differentiate X and Y with"),
+        hs.HopsBoolean("Dodge", "dodge", "When hue nesting is used, whether elements should be shifted "
+                       "along the categorical axis"),
+        hs.HopsString("K depth", "k_depth", "The number of boxes, and by extension number of percentiles, to draw"
+                      "\nChoose from: 'tukey', 'proportion', trustworthy', or 'full'"
+                      "\nDefault = 'tukey'"),
+        hs.HopsBoolean("Fliers", "fliers", "Show fliers, Default = True"),
+        hs.HopsString("Palette", "palette", "Seaborn palette for your graph."
+                      "\nInput a valid name or select one from the output of the 'preset' component"
+                      "\nDefault = 'deep'"),
+        hs.HopsString("Figure Size", "fig_size",
+                      "String 'width; height' in inches", default=''),
+        hs.HopsString("Despine", "despine",
+                      "Despine your graph. Choose from: 'True', 'False', 'left', 'right', 'top'", default='{}'),
+        hs.HopsString("Additional Arguments", "add_args",
+                      "Additional seaborn plot arguments passed as a JSON Object", default='{}'),
+        hs.HopsString("Axis Arguments", "ax_args",
+                      "Additional matplotlib axis  arguments passed as a JSON Object", default='{}'),
+        hs.HopsBoolean("Plot", "Plot", "Plot me!")
     ],
     outputs=[
         hs.HopsString("Base64 png", "img_str", "Image as base64 bitmap."),
     ]
 )
-def boxen_df(csv_df1: str, x_ax, y_ax, g_hue='', g_dodge=True, g_k_depth="tukey", g_palette="deep", g_showfliers=True,
+def boxen_df(csv_df1: str, x_ax, y_ax, g_hue='', g_dodge=True, g_k_depth="tukey", g_showfliers=True, g_palette="deep", g_fig_size='', g_despine='{}', g_add_args='{}', g_ax_args='{}',
              plot: bool = False):
     # load csv to df
     the_dataframe = csv_to_df(csv_df1)
+
+    g_despine, g_add_args, g_ax_args = json_parser(
+        g_despine, g_add_args, g_ax_args)
+
     if plot:
-        return all_graphs.boxen(the_dataframe, x_ax, y_ax, g_hue, g_dodge, g_k_depth, g_palette, g_showfliers)
+        return all_graphs.boxen(the_dataframe, x_ax, y_ax, g_hue, g_dodge, g_k_depth, g_showfliers, g_palette, g_fig_size, g_despine, g_add_args, g_ax_args)
 
 
 @hops.component(
@@ -531,30 +733,46 @@ def boxen_df(csv_df1: str, x_ax, y_ax, g_hue='', g_dodge=True, g_k_depth="tukey"
     nickname="pointDF",
     description="Pointplot a dataframe",
     inputs=[
-        hs.HopsString("Dataframe", "Df", "Dataframe to pointplot"),
-        hs.HopsString("X axis", "X", "What's your X value?"),
-        hs.HopsString("Y axis", "Y", "What's your Y value? Has to refer to numerical values"),
-        hs.HopsString("Hue", "h", "Column value to differentiate X and Y with"),
-        hs.HopsBoolean("Dodge", "d", "When hue nesting is used, whether elements should be shifted "
-                                     "along the categorical axis"),
-        hs.HopsBoolean("Join", "j", "If True, lines will be drawn between point estimates at the same hue level"),
-        hs.HopsNumber("Scale", "s", "Scale factor for the plot elements"),
-        hs.HopsNumber("Error width", "e", "Thickness of error bar lines"),
-        hs.HopsString("Palette", "p", "Seaborn palette for your graph."
-                                      "\nInput a valid name or select one from the output of the 'preset' component"
-                                      "\nDefault = 'deep'"),
-        hs.HopsBoolean("Plot", "P", "Plot me!")
+        hs.HopsString("Dataframe", "df", "Dataframe to pointplot"),
+        hs.HopsString("X axis", "x", "What's your X value?"),
+        hs.HopsString(
+            "Y axis", "y", "What's your Y value? Has to refer to numerical values"),
+        hs.HopsString(
+            "Hue", "hue", "Column value to differentiate X and Y with"),
+        hs.HopsBoolean("Dodge", "dodge", "When hue nesting is used, whether elements should be shifted "
+                       "along the categorical axis"),
+        hs.HopsBoolean(
+            "Join", "join", "If True, lines will be drawn between point estimates at the same hue level"),
+        hs.HopsNumber("Scale", "scale", "Scale factor for the plot elements"),
+        hs.HopsNumber("Error width", "error_width",
+                      "Thickness of error bar lines"),
+        hs.HopsString("Palette", "palette", "Seaborn palette for your graph."
+                      "\nInput a valid name or select one from the output of the 'preset' component"
+                      "\nDefault = 'deep'"),
+        hs.HopsString("Figure Size", "fig_size",
+                      "String 'width; height' in inches", default=''),
+        hs.HopsString("Despine", "despine",
+                      "Despine your graph. Choose from: 'True', 'False', 'left', 'right', 'top'", default='{}'),
+        hs.HopsString("Additional Arguments", "add_args",
+                      "Additional seaborn plot arguments passed as a JSON Object", default='{}'),
+        hs.HopsString("Axis Arguments", "ax_args",
+                      "Additional matplotlib axis  arguments passed as a JSON Object", default='{}'),
+        hs.HopsBoolean("Plot", "Plot", "Plot me!")
     ],
     outputs=[
         hs.HopsString("Base64 png", "img_str", "Image as base64 bitmap."),
     ]
 )
-def point_df(csv_df1: str, x_ax, y_ax, g_hue='', g_dodge=False, g_join=True, g_scale=1, g_errwidth=0, g_palette='deep',
+def point_df(csv_df1: str, x_ax, y_ax, g_hue='', g_dodge=False, g_join=True, g_scale=1, g_errwidth=0, g_palette='deep', g_fig_size='', g_despine='{}', g_add_args='{}', g_ax_args='{}',
              plot: bool = False):
     # load csv to df
     the_dataframe = csv_to_df(csv_df1)
+
+    g_despine, g_add_args, g_ax_args = json_parser(
+        g_despine, g_add_args, g_ax_args)
+
     if plot:
-        return all_graphs.point(the_dataframe, x_ax, y_ax, g_hue, g_dodge, g_join, g_scale, g_errwidth, g_palette)
+        return all_graphs.point(the_dataframe, x_ax, y_ax, g_hue, g_dodge, g_join, g_scale, g_errwidth, g_palette, g_fig_size, g_despine, g_add_args, g_ax_args)
 
 
 @hops.component(
@@ -563,26 +781,42 @@ def point_df(csv_df1: str, x_ax, y_ax, g_hue='', g_dodge=False, g_join=True, g_s
     nickname="barDF",
     description="Barplot a dataframe",
     inputs=[
-        hs.HopsString("Dataframe", "Df", "Dataframe to barplot"),
-        hs.HopsString("X axis", "X", "What's your X value?"),
-        hs.HopsString("Y axis", "Y", "What's your Y value? Has to refer to numerical values"),
-        hs.HopsString("Hue", "h", "Column value to differentiate X and Y with"),
-        hs.HopsString("ci", "c", "Confidence interval can be set to 'sd' as for 'standard deviation'"),
-        hs.HopsNumber("Error width", "e", "Thickness of error bar lines"),
-        hs.HopsString("Palette", "p", "Seaborn palette for your graph."
-                                      "\nInput a valid name or select one from the output of the 'preset' component"
-                                      "\nDefault = 'deep'"),
-        hs.HopsBoolean("Plot", "P", "Plot me!")
+        hs.HopsString("Dataframe", "df", "Dataframe to barplot"),
+        hs.HopsString("X axis", "x", "What's your X value?"),
+        hs.HopsString(
+            "Y axis", "y", "What's your Y value? Has to refer to numerical values"),
+        hs.HopsString(
+            "Hue", "hue", "Column value to differentiate X and Y with"),
+        hs.HopsString(
+            "Confidence Interval", "ci", "Confidence interval can be set to 'sd' as for 'standard deviation'"),
+        hs.HopsNumber("Error width", "error_width",
+                      "Thickness of error bar lines"),
+        hs.HopsString("Palette", "palette", "Seaborn palette for your graph."
+                      "\nInput a valid name or select one from the output of the 'preset' component"
+                      "\nDefault = 'deep'"),
+        hs.HopsString("Figure Size", "fig_size",
+                      "String 'width; height' in inches", default=''),
+        hs.HopsString("Despine", "despine",
+                      "Despine your graph. Choose from: 'True', 'False', 'left', 'right', 'top'", default='{}'),
+        hs.HopsString("Additional Arguments", "add_args",
+                      "Additional seaborn plot arguments passed as a JSON Object", default='{}'),
+        hs.HopsString("Axis Arguments", "ax_args",
+                      "Additional matplotlib axis  arguments passed as a JSON Object", default='{}'),
+        hs.HopsBoolean("Plot", "Plot", "Plot me!")
     ],
     outputs=[
         hs.HopsString("Base64 png", "img_str", "Image as base64 bitmap."),
     ]
 )
-def bar_df(csv_df1: str, x_ax, y_ax, g_hue='', g_ci="sd", g_errwidth=0, g_palette="deep", plot: bool = False):
+def bar_df(csv_df1: str, x_ax, y_ax, g_hue='', g_ci="sd", g_errwidth=0, g_palette="deep", g_fig_size='', g_despine='{}', g_add_args='{}', g_ax_args='{}', plot: bool = False):
     # load csv to df
     the_dataframe = csv_to_df(csv_df1)
+
+    g_despine, g_add_args, g_ax_args = json_parser(
+        g_despine, g_add_args, g_ax_args)
+
     if plot:
-        return all_graphs.bar(the_dataframe, x_ax, y_ax, g_hue, g_ci, g_errwidth, g_palette)
+        return all_graphs.bar(the_dataframe, x_ax, y_ax, g_hue, g_ci, g_errwidth, g_palette, g_fig_size, g_despine, g_add_args, g_ax_args)
 
 
 @hops.component(
@@ -591,25 +825,38 @@ def bar_df(csv_df1: str, x_ax, y_ax, g_hue='', g_ci="sd", g_errwidth=0, g_palett
     nickname="barDF",
     description="Countplot a dataframe",
     inputs=[
-        hs.HopsString("Dataframe", "Df", "Dataframe to countplot"),
-        hs.HopsString("X axis", "X", "What's your X value?"),
-        hs.HopsString("Hue", "h", "Column value to differentiate X and Y with"),
-        hs.HopsBoolean("Dodge", "d", "When hue nesting is used, whether elements should be shifted "
-                                     "along the categorical axis"),
-        hs.HopsString("Palette", "p", "Seaborn palette for your graph."
-                                      "\nInput a valid name or select one from the output of the 'preset' component"
-                                      "\nDefault = 'deep'"),
-        hs.HopsBoolean("Plot", "P", "Plot me!")
+        hs.HopsString("Dataframe", "df", "Dataframe to countplot"),
+        hs.HopsString("X axis", "x", "What's your X value?"),
+        hs.HopsString(
+            "Hue", "hue", "Column value to differentiate X and Y with"),
+        hs.HopsBoolean("Dodge", "dodge", "When hue nesting is used, whether elements should be shifted "
+                       "along the categorical axis"),
+        hs.HopsString("Palette", "palette", "Seaborn palette for your graph."
+                      "\nInput a valid name or select one from the output of the 'preset' component"
+                      "\nDefault = 'deep'"),
+        hs.HopsString("Figure Size", "fig_size",
+                      "String 'width; height' in inches", default=''),
+        hs.HopsString("Despine", "despine",
+                      "Despine your graph. Choose from: 'True', 'False', 'left', 'right', 'top'", default='{}'),
+        hs.HopsString("Additional Arguments", "add_args",
+                      "Additional seaborn plot arguments passed as a JSON Object", default='{}'),
+        hs.HopsString("Axis Arguments", "ax_args",
+                      "Additional matplotlib axis  arguments passed as a JSON Object", default='{}'),
+        hs.HopsBoolean("Plot", "Plot", "Plot me!")
     ],
     outputs=[
         hs.HopsString("Base64 png", "img_str", "Image as base64 bitmap."),
     ]
 )
-def count_df(csv_df1: str, x_ax, g_hue='', g_dodge=True, g_palette="deep", plot: bool=False):
+def count_df(csv_df1: str, x_ax, g_hue='', g_dodge=True, g_palette="deep", g_fig_size='', g_despine='{}', g_add_args='{}', g_ax_args='{}', plot: bool = False):
     # load csv to df
     the_dataframe = csv_to_df(csv_df1)
+
+    g_despine, g_add_args, g_ax_args = json_parser(
+        g_despine, g_add_args, g_ax_args)
+
     if plot:
-        return all_graphs.count(the_dataframe, x_ax, g_hue, g_dodge, g_palette)
+        return all_graphs.count(the_dataframe, x_ax, g_hue, g_dodge, g_palette, g_fig_size, g_despine, g_add_args, g_ax_args)
 
 
 # ----------------------------------------------------------------------------------
@@ -619,5 +866,5 @@ if __name__ == "__main__":
     # app.run(debug=False)
     port = int(os.environ.get("PORT", 5000))
     app.run(host='0.0.0.0', port=port, debug=False)
-    
+
     # app.run(host="0.0.0.0", port= 5000, debug=False)

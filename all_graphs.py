@@ -4,285 +4,179 @@ import seaborn as sns
 import io
 import os
 
+
 def base64img():
     # https://stackoverflow.com/questions/37225035/serialize-in-json-a-base64-encoded-data
     my_stringIObytes = io.BytesIO()
-    
-    plt.savefig(my_stringIObytes, format='png')
+
+    plt.savefig(my_stringIObytes, format='png', dpi=200)
     plt.close()
-    
+
     my_stringIObytes.seek(0)
-    img_data_bytes = base64.b64encode(my_stringIObytes.read())
-    img_data_string = img_data_bytes.decode('utf-8')
-    return img_data_string
+    imdata_bytes = base64.b64encode(my_stringIObytes.read())
+    imdata_string = imdata_bytes.decode('utf-8')
+    return imdata_string
+
+
+def empty2none(args):
+    for k, v in args.items():
+        if type(v) == str:
+            args[k] = None if v == '' else v
+        if type(v) == int:
+            args[k] = None if v == -999 else v
+    return args
+
+
+def set_fig_size(g, fig_size):
+    w, h = fig_size.split(';')
+    g.figure.set_figwidth(float(w))
+    g.figure.set_figheight(float(h))
+
+
+def clean_args(args):
+    rm_list = ['add_args', 'ax_args', 'despine', 'fig_size']
+    # remove optional args
+    try:
+        [args.pop(k) for k in rm_list]
+    except:
+        pass
+
+    args = empty2none(args)
+
+    return args
+
+def example_data(data_base_name='iris'):
+    # https://seaborn.pydata.org/generated/seaborn.load_dataset.html#seaborn.load_dataset
+    sns.load_dataset(data_base_name).to_csv(index=False, line_terminator='@')
+
 
 # ---------------------------------
 # RELATIONAL PLOTS
 
-def rel(g_dt, g_x_ax, g_y_ax, g_hue, g_palette):
-    # https://seaborn.pydata.org/generated/seaborn.relplot.html#seaborn.relplot
-    if g_hue == '':
-        sns.relplot(
-            data=g_dt,
-            x=g_x_ax,
-            y=g_y_ax,
-            palette=g_palette
-        )
-    else:
-        sns.relplot(
-            data=g_dt,
-            x=g_x_ax,
-            y=g_y_ax,
-            hue=g_hue,
-            palette=g_palette
-        )
-    return base64img()
 
-
-def no_default(g_dt, g_x_ax, g_y_ax, g_palette, g_hue):
+def rel(data, x, y, hue, size, style, row, col, col_wrap, kind='scatter', palette='deep', fig_size ='', despine={}, add_args={}, ax_args={}):
     # https://seaborn.pydata.org/generated/seaborn.relplot.html#seaborn.relplot
 
-    sns.relplot(
-        data=g_dt,
-        x=g_x_ax,
-        y=g_y_ax,
-        hue=g_hue,
-        palette=g_palette
-    )
+    args = clean_args(locals())
+
+    g = sns.relplot(**args, **add_args)
+    g.set(**ax_args)
+
+    if fig_size:
+        set_fig_size(g, fig_size)
+
+    if despine:
+        sns.despine(**despine)
+
+    # tight layout
+    plt.tight_layout()
 
     return base64img()
 
 
-def scatter(g_dt, g_x_ax, g_y_ax, g_hue, g_palette):
+def scatter(data, x, y, hue, palette, fig_size, despine={}, add_args={}, ax_args={}):
     # https://seaborn.pydata.org/generated/seaborn.scatterplot.html#seaborn.scatterplot
-    if g_hue == '':
-        sns.scatterplot(
-            data=g_dt,
-            x=g_x_ax,
-            y=g_y_ax,
-            palette=g_palette
-        )
-    else:
-        sns.scatterplot(
-            data=g_dt,
-            x=g_x_ax,
-            y=g_y_ax,
-            hue=g_hue,
-            palette=g_palette
-        )
+
+    args = clean_args(locals())
+
+    g = sns.scatterplot(**args, **add_args)
+    g.set(**ax_args)
+
+    if fig_size:
+        set_fig_size(g, fig_size)
+
+    if despine:
+        sns.despine(**despine)
+
+    # tight layout
+    plt.tight_layout()
+
     return base64img()
 
 
-def line(g_dt, g_x_ax, g_y_ax, g_hue, g_palette):
+def line(data, x, y, hue, palette, fig_size, despine={}, add_args={}, ax_args={}):
     # https://seaborn.pydata.org/generated/seaborn.lineplot.html#seaborn.lineplot
-    if g_hue == '':
-        sns.lineplot(
-            data=g_dt,
-            x=g_x_ax,
-            y=g_y_ax,
-            palette=g_palette
-        )
-    else:
-        sns.lineplot(
-            data=g_dt,
-            x=g_x_ax,
-            y=g_y_ax,
-            hue=g_hue,
-            palette=g_palette
-        )
+
+    args = clean_args(locals())
+
+    g = sns.lineplot(**args, **add_args)
+    g.set(**ax_args)
+
+    if fig_size:
+        set_fig_size(g, fig_size)
+
+    if despine:
+        sns.despine(**despine)
+
+    # tight layout
+    plt.tight_layout()
+
     return base64img()
 
 
 # -------------------------------------------------
 # DISTRIBUTION PLOTS
 
-def dis(g_dt, g_x_ax, g_y_ax, g_hue, g_kind, g_rug, g_legend, g_palette):
-    if g_hue == '':
-        if g_y_ax == '':
-            sns.displot(
-                data=g_dt,
-                x=g_x_ax,
-                kind=g_kind,
-                rug=g_rug,
-                legend=g_legend,
-                palette=g_palette
-            )
-        else:
-            sns.displot(
-                data=g_dt,
-                x=g_x_ax,
-                y=g_y_ax,
-                kind=g_kind,
-                rug=g_rug,
-                legend=g_legend,
-                palette=g_palette
-            )
-    else:
-        if g_y_ax == '':
-            sns.displot(
-                data=g_dt,
-                x=g_x_ax,
-                hue=g_hue,
-                kind=g_kind,
-                rug=g_rug,
-                legend=g_legend,
-                palette=g_palette
-            )
-        else:
-            sns.displot(
-                data=g_dt,
-                x=g_x_ax,
-                y=g_y_ax,
-                hue=g_hue,
-                kind=g_kind,
-                rug=g_rug,
-                legend=g_legend,
-                palette=g_palette
-            )
+def dis(data, x, y, hue, row, col, col_wrap, kind, rug, legend, palette, fig_size, despine={}, add_args={}, ax_args={}):
+
+    # https://seaborn.pydata.org/generated/seaborn.displot.html#seaborn.displot
+
+    args = clean_args(locals())
+
+    g = sns.displot(**args, **add_args)
+    g.set(**ax_args)
+
+    if fig_size:
+        set_fig_size(g, fig_size)
+
+    if despine:
+        sns.despine(**despine)
+
+    # tight layout
+    plt.tight_layout()
+
     return base64img()
 
 
-def hist(g_dt, g_x_ax, g_y_ax, g_hue, g_stat, g_cumulative, g_multiple, g_element, g_fill, g_shrink, g_kde, g_legend,
-         g_palette):
+def hist(data, x, y, hue, stat, cumulative, multiple, element, fill, shrink, kde, legend,
+         palette, fig_size, despine={}, add_args={}, ax_args={}):
     # https://seaborn.pydata.org/generated/seaborn.histplot.html#seaborn.histplot
-    if g_hue == '':
-        if g_y_ax == '':
-            sns.histplot(
-                data=g_dt,
-                x=g_x_ax,
-                stat=g_stat,
-                cumulative=g_cumulative,
-                multiple=g_multiple,
-                element=g_element,
-                fill=g_fill,
-                shrink=g_shrink,
-                kde=g_kde,
-                legend=g_legend,
-                palette=g_palette
-            )
-        else:
-            sns.histplot(
-                data=g_dt,
-                x=g_x_ax,
-                y=g_y_ax,
-                stat=g_stat,
-                cumulative=g_cumulative,
-                multiple=g_multiple,
-                element=g_element,
-                fill=g_fill,
-                shrink=g_shrink,
-                kde=g_kde,
-                legend=g_legend,
-                palette=g_palette
-            )
-    else:
-        if g_y_ax == '':
-            sns.histplot(
-                data=g_dt,
-                x=g_x_ax,
-                hue=g_hue,
-                stat=g_stat,
-                cumulative=g_cumulative,
-                multiple=g_multiple,
-                element=g_element,
-                fill=g_fill,
-                shrink=g_shrink,
-                kde=g_kde,
-                legend=g_legend,
-                palette=g_palette
-            )
-        else:
-            sns.histplot(
-                data=g_dt,
-                x=g_x_ax,
-                y=g_y_ax,
-                hue=g_hue,
-                stat=g_stat,
-                cumulative=g_cumulative,
-                multiple=g_multiple,
-                element=g_element,
-                fill=g_fill,
-                shrink=g_shrink,
-                kde=g_kde,
-                legend=g_legend,
-                palette=g_palette
-            )
+
+    args = clean_args(locals())
+
+    g = sns.histplot(**args, **add_args)
+    g.set(**ax_args)
+
+    if fig_size:
+        set_fig_size(g, fig_size)
+
+    if despine:
+        sns.despine(**despine)
+
+    # tight layout
+    plt.tight_layout()
+
     return base64img()
 
 
-def kde(g_dt, g_x_ax, g_y_ax, g_hue, g_cut, g_cumulative, g_multiple, g_common_norm, g_common_grid, g_levels, g_thresh,
-        g_alpha, g_fill, g_legend, g_palette):
+def kde(data, x, y, hue, cut, cumulative, multiple, common_norm, common_grid, levels, thresh,
+        alpha, fill, legend, palette, fig_size, despine={}, add_args={}, ax_args={}):
     # https://seaborn.pydata.org/generated/seaborn.kdeplot.html#seaborn.kdeplot
-    if g_hue == '':
-        if g_y_ax == '':
-            sns.kdeplot(
-                data=g_dt,
-                x=g_x_ax,
-                cut=g_cut,
-                cumulative=g_cumulative,
-                multiple=g_multiple,
-                common_norm=g_common_norm,
-                common_grid=g_common_grid,
-                levels=g_levels,
-                thresh=g_thresh,
-                alpha=g_alpha,
-                fill=g_fill,
-                legend=g_legend,
-                palette=g_palette
-            )
-        else:
-            sns.kdeplot(
-                data=g_dt,
-                x=g_x_ax,
-                y=g_y_ax,
-                cut=g_cut,
-                cumulative=g_cumulative,
-                multiple=g_multiple,
-                common_norm=g_common_norm,
-                common_grid=g_common_grid,
-                levels=g_levels,
-                thresh=g_thresh,
-                alpha=g_alpha,
-                fill=g_fill,
-                legend=g_legend,
-                palette=g_palette
-            )
-    else:
-        if g_y_ax == '':
-            sns.kdeplot(
-                data=g_dt,
-                x=g_x_ax,
-                hue=g_hue,
-                cut=g_cut,
-                cumulative=g_cumulative,
-                multiple=g_multiple,
-                common_norm=g_common_norm,
-                common_grid=g_common_grid,
-                levels=g_levels,
-                thresh=g_thresh,
-                alpha=g_alpha,
-                fill=g_fill,
-                legend=g_legend,
-                palette=g_palette
-            )
-        else:
-            sns.kdeplot(
-                data=g_dt,
-                x=g_x_ax,
-                y=g_y_ax,
-                hue=g_hue,
-                cut=g_cut,
-                cumulative=g_cumulative,
-                multiple=g_multiple,
-                common_norm=g_common_norm,
-                common_grid=g_common_grid,
-                levels=g_levels,
-                thresh=g_thresh,
-                alpha=g_alpha,
-                fill=g_fill,
-                legend=g_legend,
-                palette=g_palette
-            )
+
+    args = clean_args(locals())
+
+    g = sns.kdeplot(**args, **add_args)
+    g.set(**ax_args)
+
+    if fig_size:
+        set_fig_size(g, fig_size)
+
+    if despine:
+        sns.despine(**despine)
+
+    # tight layout
+    plt.tight_layout()
+
     return base64img()
 
 
@@ -300,222 +194,184 @@ def rug():
 # CATEGORICAL PLOTS
 
 
-def cat(g_dt, g_x_ax, g_y_ax, g_hue, g_ci, g_seed, g_kind, g_palette):
+def cat(data, x, y, hue, row, col, col_wrap, ci, seed, kind, palette, fig_size, despine={}, add_args={}, ax_args={}):
     # https://seaborn.pydata.org/generated/seaborn.catplot.html#seaborn.catplot
-    if g_hue == '':
-        sns.catplot(
-            data=g_dt,
-            x=g_x_ax,
-            y=g_y_ax,
-            ci=g_ci,
-            seed=g_seed,
-            kind=g_kind,
-            palette=g_palette
-        )
-    else:
-        sns.catplot(
-            data=g_dt,
-            x=g_x_ax,
-            y=g_y_ax,
-            hue=g_hue,
-            ci=g_ci,
-            seed=g_seed,
-            kind=g_kind,
-            palette=g_palette
-        )
+
+    args = clean_args(locals())
+
+    g = sns.catplot(**args, **add_args)
+    g.set(**ax_args)
+
+    if fig_size:
+        set_fig_size(g, fig_size)
+
+    if despine:
+        sns.despine(**despine)
+
+    # tight layout
+    plt.tight_layout()
+
     return base64img()
 
 
-def strip(g_dt, g_x_ax, g_y_ax, g_hue, g_jitter, g_palette, g_size):
+def strip(data, x, y, hue, jitter, size, palette, fig_size, despine={}, add_args={}, ax_args={}):
     # https://seaborn.pydata.org/generated/seaborn.stripplot.html#seaborn.stripplot
-    if g_hue == '':
-        sns.stripplot(
-            data=g_dt,
-            x=g_x_ax,
-            y=g_y_ax,
-            jitter=g_jitter,
-            palette=g_palette,
-            size=g_size
-        )
-    else:
-        sns.stripplot(
-            data=g_dt,
-            x=g_x_ax,
-            y=g_y_ax,
-            hue=g_hue,
-            jitter=g_jitter,
-            palette=g_palette,
-            size=g_size
-        )
+
+    args = clean_args(locals())
+
+    g = sns.stripplot(**args, **add_args)
+    g.set(**ax_args)
+
+    if fig_size:
+        set_fig_size(g, fig_size)
+
+    if despine:
+        sns.despine(**despine)
+
+    # tight layout
+    plt.tight_layout()
+
     return base64img()
 
 
-def swarm(g_dt, g_x_ax, g_y_ax, g_hue, g_dodge, g_palette, g_size):
+def swarm(data, x, y, hue, dodge, size, palette, fig_size, despine={}, add_args={}, ax_args={}):
     # https://seaborn.pydata.org/generated/seaborn.swarmplot.html#seaborn.swarmplot
-    if g_hue == '':
-        sns.swarmplot(
-            data=g_dt,
-            x=g_x_ax,
-            y=g_y_ax,
-            dodge=g_dodge,
-            palette=g_palette,
-            size=g_size
-        )
-    else:
-        sns.swarmplot(
-            data=g_dt,
-            x=g_x_ax,
-            y=g_y_ax,
-            hue=g_hue,
-            dodge=g_dodge,
-            palette=g_palette,
-            size=g_size
-        )
+
+    args = clean_args(locals())
+
+    g = sns.swarmplot(**args, **add_args)
+    g.set(**ax_args)
+
+    if fig_size:
+        set_fig_size(g, fig_size)
+
+    if despine:
+        sns.despine(**despine)
+
+    # tight layout
+    plt.tight_layout()
+
     return base64img()
 
 
-def box(g_dt, g_x_ax, g_y_ax, g_hue, g_palette):
+def box(data, x, y, hue, palette, fig_size, despine={}, add_args={}, ax_args={}):
     # https://seaborn.pydata.org/generated/seaborn.boxplot.html#seaborn.boxplot
     # get all local arguments and check if = ''
-    
-    if g_hue == '': g_hue = None
-    
-    sns.boxplot(
-        data=g_dt,
-        x=g_x_ax,
-        y=g_y_ax,
-        hue=g_hue,
-        palette=g_palette,
-    )
-    
-    sns.despine(offset=10, trim=True)
-    
+
+    args = clean_args(locals())
+
+    g = sns.boxplot(**args, **add_args)
+    g.set(**ax_args)
+
+    if fig_size:
+        set_fig_size(g, fig_size)
+
+    if despine:
+        sns.despine(**despine)
+
+    # tight layout
+    plt.tight_layout()
+
     return base64img()
 
 
-def violin(g_dt, g_x_ax, g_y_ax, g_hue, g_bw, g_inner, g_split, g_dodge, g_palette):
+def violin(data, x, y, hue, bw, inner, split, dodge, palette, fig_size, despine={}, add_args={}, ax_args={}):
     # https://seaborn.pydata.org/generated/seaborn.violinplot.html#seaborn.violinplot
-    if g_hue == '':
-        sns.violinplot(
-            data=g_dt,
-            x=g_x_ax,
-            y=g_y_ax,
-            bw=g_bw,
-            inner=g_inner,
-            split=g_split,
-            dodge=g_dodge,
-            palette=g_palette,
-        )
-    else:
-        sns.violinplot(
-            data=g_dt,
-            x=g_x_ax,
-            y=g_y_ax,
-            hue=g_hue,
-            bw=g_bw,
-            inner=g_inner,
-            split=g_split,
-            dodge=g_dodge,
-            palette=g_palette,
-        )
+
+    args = clean_args(locals())
+
+    g = sns.violinplot(**args, **add_args)
+    g.set(**ax_args)
+
+    if fig_size:
+        set_fig_size(g, fig_size)
+
+    if despine:
+        sns.despine(**despine)
+
+    # tight layout
+    plt.tight_layout()
+
     return base64img()
 
 
-def boxen(g_dt, g_x_ax, g_y_ax, g_hue, g_dodge, g_k_depth, g_palette, g_showfliers):
+def boxen(data, x, y, hue, dodge, k_depth, showfliers, palette, fig_size, despine={}, add_args={}, ax_args={}):
     # https://seaborn.pydata.org/generated/seaborn.boxenplot.html#seaborn.boxenplot
-    if g_hue == '':
-        sns.boxenplot(
-            data=g_dt,
-            x=g_x_ax,
-            y=g_y_ax,
-            dodge=g_dodge,
-            k_depth=g_k_depth,
-            palette=g_palette,
-            showfliers=g_showfliers
-        )
-    else:
-        sns.boxenplot(
-            data=g_dt,
-            x=g_x_ax,
-            y=g_y_ax,
-            hue=g_hue,
-            dodge=g_dodge,
-            k_depth=g_k_depth,
-            palette=g_palette,
-            showfliers=g_showfliers
-        )
+
+    args = clean_args(locals())
+
+    g = sns.boxenplot(**args, **add_args)
+    g.set(**ax_args)
+
+    if fig_size:
+        set_fig_size(g, fig_size)
+
+    if despine:
+        sns.despine(**despine)
+
+    # tight layout
+    plt.tight_layout()
+
     return base64img()
 
 
-def point(g_dt, g_x_ax, g_y_ax, g_hue, g_dodge, g_join, g_scale, g_errwidth, g_palette):
+def point(data, x, y, hue, dodge, join, scale, errwidth, palette, fig_size, despine={}, add_args={}, ax_args={}):
     # https://seaborn.pydata.org/generated/seaborn.pointplot.html#seaborn.pointplot
-    if g_hue == '':
-        sns.pointplot(
-            data=g_dt,
-            x=g_x_ax,
-            y=g_y_ax,
-            dodge=g_dodge,
-            join=g_join,
-            scale=g_scale,
-            errwidth=g_errwidth,
-            palette=g_palette
-        )
-    else:
-        sns.pointplot(
-            data=g_dt,
-            x=g_x_ax,
-            y=g_y_ax,
-            hue=g_hue,
-            dodge=g_dodge,
-            join=g_join,
-            scale=g_scale,
-            errwidth=g_errwidth,
-            palette=g_palette
-        )
+
+    args = clean_args(locals())
+
+    g = sns.pointplot(**args, **add_args)
+    g.set(**ax_args)
+
+    if fig_size:
+        set_fig_size(g, fig_size)
+
+    if despine:
+        sns.despine(**despine)
+
+    # tight layout
+    plt.tight_layout()
+
     return base64img()
 
 
-def bar(g_dt, g_x_ax, g_y_ax, g_hue, g_ci, g_errwidth, g_palette):
+def bar(data, x, y, hue, ci, errwidth, palette, fig_size, despine={}, add_args={}, ax_args={}):
     # https://seaborn.pydata.org/generated/seaborn.barplot.html#seaborn.barplot
-    if g_hue == '':
-        sns.barplot(
-            data=g_dt,
-            x=g_x_ax,
-            y=g_y_ax,
-            ci=g_ci,
-            errwidth=g_errwidth,
-            palette=g_palette
-        )
-    else:
-        sns.barplot(
-            data=g_dt,
-            x=g_x_ax,
-            y=g_y_ax,
-            hue=g_hue,
-            ci=g_ci,
-            errwidth=g_errwidth,
-            palette=g_palette
-        )
+
+    args = clean_args(locals())
+
+    g = sns.barplot(**args, **add_args)
+    g.set(**ax_args)
+
+    if fig_size:
+        set_fig_size(g, fig_size)
+
+    if despine:
+        sns.despine(**despine)
+
+    # tight layout
+    plt.tight_layout()
+
     return base64img()
 
 
-def count(g_dt, g_x_ax, g_hue, g_dodge, g_palette):
+def count(data, x, hue, dodge, palette, fig_size, despine={}, add_args={}, ax_args={}):
     # https://seaborn.pydata.org/generated/seaborn.countplot.html#seaborn.countplot
-    if g_hue == '':
-        sns.countplot(
-            data=g_dt,
-            x=g_x_ax,
-            dodge=g_dodge,
-            palette=g_palette
-        )
-    else:
-        sns.countplot(
-            data=g_dt,
-            x=g_x_ax,
-            hue=g_hue,
-            dodge=g_dodge,
-            palette=g_palette
-        )
+
+    args = clean_args(locals())
+
+    g = sns.countplot(**args, **add_args)
+    g.set(**ax_args)
+
+    if fig_size:
+        set_fig_size(g, fig_size)
+
+    if despine:
+        sns.despine(**despine)
+
+    # tight layout
+    plt.tight_layout()
+
     return base64img()
 
 # -----------------------
