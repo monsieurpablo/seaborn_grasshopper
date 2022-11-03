@@ -83,5 +83,11 @@ def fix_one_item_list(a_df, data_type):
 def csv_to_df(df1):
     """load df from a csv, with special line-terminator"""
     buffer = io.StringIO(df1)
-    loaded_df1 = pd.read_csv(filepath_or_buffer=buffer, skipinitialspace=True, lineterminator='@')
-    return loaded_df1
+    df = pd.read_csv(filepath_or_buffer=buffer, skipinitialspace=True, lineterminator='@')
+    df.columns = df.columns.str.lower()
+
+    if 'date' in df.columns:
+        df['date'] = pd.to_datetime(df['date'], format="%d %b %H:%S") #01 Jan 00:00
+        df['date'] = df['date'] + pd.offsets.DateOffset(year=2020)
+    
+    return df

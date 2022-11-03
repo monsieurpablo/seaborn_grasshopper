@@ -15,6 +15,9 @@ def base64img():
     my_stringIObytes.seek(0)
     imdata_bytes = base64.b64encode(my_stringIObytes.read())
     imdata_string = imdata_bytes.decode('utf-8')
+
+    my_stringIObytes.flush()
+    
     return imdata_string
 
 
