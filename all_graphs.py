@@ -1,5 +1,6 @@
 import base64
 from matplotlib import pyplot as plt
+import pandas as pd
 import seaborn as sns
 import io
 import os
@@ -34,9 +35,21 @@ def empty2none(args):
 
 def set_fig_size(g, fig_size):
     w, h = fig_size.split(';')
+    # try:
     g.figure.set_figwidth(float(w))
     g.figure.set_figheight(float(h))
-
+    # except:
+        
+def check_numeric(df,column):
+    # try:
+    if pd.api.types.is_numeric_dtype(df[column]):
+        return True
+    else:
+        return False
+        # raise ValueError(f"{column} does not contain numbers")
+            
+    # except ValueError as e:
+    #     return e
 
 def clean_args(args):
     rm_list = ['add_args', 'ax_args', 'despine', 'fig_size']
@@ -381,17 +394,21 @@ def count(data, x, hue, dodge, palette, fig_size, despine={}, add_args={}, ax_ar
 
 # -----------------------
 
-def joint(data, x, y, hue, kind, palette, marginal_ticks, fig_size,  despine={}, add_args={}, ax_args={}):
+def joint(data, x, y, hue, kind, palette, fig_size,  despine={}, add_args={}, ax_args={}):
     # https://seaborn.pydata.org/generated/seaborn.jointplot.html#seaborn.jointplot
 
     args = clean_args(locals())
-
+    
+    # check that x and y columns are numeric 
+    if sum([check_numeric(data, x) for x in [x, y]]) != 0:
+        raise ValueError(f'x column "{x}" and y columns "{y}" must be numeric')
+    
     g = sns.jointplot(**args, **add_args)
-    g.set(**ax_args)
+    # g.set(**ax_args) # joint plot does not have an ax_args 
 
     if fig_size:
         set_fig_size(g, fig_size)
-
+  
     if despine:
         sns.despine(**despine)
 

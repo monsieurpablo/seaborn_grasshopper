@@ -871,7 +871,7 @@ def count_df(csv_df1: str, x_ax, g_hue='', g_dodge=True, g_palette="deep", g_fig
             "Y axis", "y", "What's your Y value? Has to refer to numerical values"),
         hs.HopsString(
             "Hue", "hue", "Column value to differentiate X and Y with"),
-        hs.HopsString("Kind", "kind", '“scatter” | “kde” | “hist” | “hex” | “reg” | “resid” '),
+        hs.HopsString("Kind", "kind", '“scatter” | “kde” | “hist” | “hex” | “reg” | “resid” ', default='hex'),
         hs.HopsString("Palette", "palette", "Seaborn palette for your graph."
                       "\nInput a valid name or select one from the output of the 'preset' component"
                       "\nDefault = 'deep'"),
@@ -889,7 +889,7 @@ def count_df(csv_df1: str, x_ax, g_hue='', g_dodge=True, g_palette="deep", g_fig
         hs.HopsString("Base64 png", "img_str", "Image as base64 bitmap."),
     ]
 )
-def joint_df(csv_df1: str, x_ax, y_ax, g_hue='', g_kind='scatter', g_palette="deep", g_fig_size='', g_despine='{}', g_add_args='{}', g_ax_args='{}', plot: bool = False):
+def joint_df(csv_df1: str, x_ax, y_ax, g_hue='', g_kind='hex', g_palette="deep", g_fig_size='', g_despine='{}', g_add_args='{}', g_ax_args='{}', plot: bool = False):
     # load csv to df
     the_dataframe = csv_to_df(csv_df1)
     
