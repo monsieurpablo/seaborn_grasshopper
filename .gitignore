@@ -161,3 +161,4 @@ cython_debug/
 #.idea/
 .vercel
 
+examples/.DS_Store

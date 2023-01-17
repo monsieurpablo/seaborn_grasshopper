@@ -6,7 +6,7 @@ import io
 import os
 
 # TODO: Change this later
-sns.set_style("whitegrid")
+sns.set_style("ticks") # whitegrid, darkgrid, white, dark, ticks
 
 def base64img():
     # https://stackoverflow.com/questions/37225035/serialize-in-json-a-base64-encoded-data
@@ -400,7 +400,7 @@ def joint(data, x, y, hue, kind, palette, fig_size,  despine={}, add_args={}, ax
     args = clean_args(locals())
     
     # check that x and y columns are numeric 
-    if sum([check_numeric(data, x) for x in [x, y]]) != 0:
+    if sum([check_numeric(data, x) for x in [x, y]]) != 2:
         raise ValueError(f'x column "{x}" and y columns "{y}" must be numeric')
     
     g = sns.jointplot(**args, **add_args)
