@@ -4,6 +4,8 @@ import seaborn as sns
 import io
 import os
 
+# TODO: Change this later
+sns.set_style("whitegrid")
 
 def base64img():
     # https://stackoverflow.com/questions/37225035/serialize-in-json-a-base64-encoded-data
