@@ -24,15 +24,6 @@ def base64img():
     return imdata_string
 
 
-def empty2none(args):
-    for k, v in args.items():
-        if type(v) == str:
-            args[k] = None if v == '' else v
-        if type(v) == int:
-            args[k] = None if v == -999 else v
-    return args
-
-
 def set_fig_size(g, fig_size):
     w, h = fig_size.split(';')
     # try:
@@ -51,6 +42,15 @@ def check_numeric(df,column):
     # except ValueError as e:
     #     return e
 
+def empty2none(args):
+    for k, v in args.items():
+        if type(v) == str:
+            args[k] = None if v == '' else v
+        if type(v) == int:
+            args[k] = None if v == -999 else v
+    return args
+
+
 def clean_args(args):
     rm_list = ['add_args', 'ax_args', 'despine', 'fig_size']
     # remove optional args
@@ -60,6 +60,8 @@ def clean_args(args):
         pass
 
     args = empty2none(args)
+    
+    # TODO check if string represents tuple or list (eval) ?
 
     return args
 
@@ -409,6 +411,26 @@ def joint(data, x, y, hue, kind, palette, fig_size,  despine={}, add_args={}, ax
     if fig_size:
         set_fig_size(g, fig_size)
   
+    if despine:
+        sns.despine(**despine)
+
+    # tight layout
+    plt.tight_layout()
+
+    return base64img()
+
+# -----------------------
+def pair(data, hue, vars, x_vars, y_vars, palette, kind, diag_kind, corner, fig_size, despine={}, add_args={}, ax_args={}):
+    # https://seaborn.pydata.org/generated/seaborn.pairplot.html#seaborn.pairplot
+
+    args = clean_args(locals())
+
+    g = sns.pairplot(**args, **add_args)
+    g.set(**ax_args)
+
+    if fig_size:
+        set_fig_size(g, fig_size)
+
     if despine:
         sns.despine(**despine)
 

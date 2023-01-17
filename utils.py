@@ -24,10 +24,7 @@ def clean_dict_datatype(a_dict: dict) -> dict:
                 a_dict[key_index][elem] = True
             # check if string False -> bool
             elif current_elem == "False":
-                a_dict[key_index][elem] = False
-            # check if the string is surrounded by parenthesis -> tuple
-            elif current_elem[0] == "(" and current_elem[-1] == ")":
-                a_dict[key_index][elem] = tuple(current_elem[1:-1].split(","))
+                a_dict[key_index][elem] = False   
             # pass as string
             else:
                 a_dict[key_index][elem] = str(current_elem)

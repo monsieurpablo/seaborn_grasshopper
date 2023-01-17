@@ -872,9 +872,7 @@ def count_df(csv_df1: str, x_ax, g_hue='', g_dodge=True, g_palette="deep", g_fig
         hs.HopsString(
             "Hue", "hue", "Column value to differentiate X and Y with"),
         hs.HopsString("Kind", "kind", '“scatter” | “kde” | “hist” | “hex” | “reg” | “resid” ', default='hex'),
-        hs.HopsString("Palette", "palette", "Seaborn palette for your graph."
-                      "\nInput a valid name or select one from the output of the 'preset' component"
-                      "\nDefault = 'deep'"),
+        hs.HopsString("Palette", "palette", "Set of colors for mapping the hue variable. If a dict, keys should be values in the hue variable."),
         hs.HopsString("Figure Size", "fig_size",
                       "String 'width; height' in inches", default=''),
         hs.HopsString("Despine", "despine",
@@ -898,6 +896,50 @@ def joint_df(csv_df1: str, x_ax, y_ax, g_hue='', g_kind='hex', g_palette="deep",
     
     if plot:
         return all_graphs.joint(the_dataframe, x_ax, y_ax, g_hue, g_kind, g_palette, g_fig_size, g_despine, g_add_args, g_ax_args)
+
+
+
+
+@hops.component(
+    "/pairplot",
+    name="dataframes pairploter",
+    nickname="pairDF",
+    description="Pairplot a dataframe",
+    inputs=[
+        hs.HopsString("Dataframe", "df", "Dataframe to scatterplot"),
+        hs.HopsString(
+            "Hue", "hue", "Column value to differentiate X and Y with"),
+        hs.HopsString("Vars", "vars", "Variables to plot", hs.HopsParamAccess.LIST, default=None),
+        hs.HopsString("X Variables", "x_vars", "Variables to plot on the X axis", hs.HopsParamAccess.LIST, default=None),
+        hs.HopsString("Y Variables", "y_vars", "Variables to plot on the Y axis", hs.HopsParamAccess.LIST, default=None),
+        hs.HopsString("Palette", "palette", "Set of colors for mapping the hue variable. If a dict, keys should be values in the hue variable."),
+        hs.HopsString("Kind", "kind", "‘scatter’, ‘kde’, ‘hist’, ‘reg’ "),
+        hs.HopsString("Diagram kind", "diag_kind", "‘auto’, ‘hist’, ‘kde’, None"),
+        hs.HopsBoolean("Corner Plot", "corner", "Corner plot"),
+        hs.HopsString("Figure Size", "fig_size",
+                      "String 'width; height' in inches", default=''),
+        hs.HopsString("Despine", "despine",
+                      "Despine your graph. Choose from: 'True', 'False', 'left', 'right', 'top'", default='{}'),
+        hs.HopsString("Additional Arguments", "add_args",
+                      "Additional seaborn plot arguments passed as a JSON Object", default='{}'),
+        hs.HopsString("Axis Arguments", "ax_args",
+                      "Additional matplotlib axis  arguments passed as a JSON Object", default='{}'),
+        hs.HopsBoolean("Plot", "Plot", "Plot me!")
+    ],
+    outputs=[
+        hs.HopsString("Base64 png", "img_str", "Image as base64 bitmap."),
+    ]
+)
+def pair_df(csv_df1: str, g_hue='', g_vars= [], g_x_vars = [], g_y_vars = [], g_palette="deep" ,  g_kind = "scatter", g_diag_kind = "auto", g_corner = False, g_fig_size='', g_despine='{}', g_add_args='{}', g_ax_args='{}', plot: bool = False):
+    # load csv to df
+    the_dataframe = csv_to_df(csv_df1)
+    
+    g_despine, g_add_args, g_ax_args = json_parser(
+        g_despine, g_add_args, g_ax_args)
+    
+    if plot:
+        return all_graphs.pair(the_dataframe, g_hue, g_vars, g_x_vars, g_y_vars, g_palette, g_kind, g_diag_kind, g_corner, g_fig_size, g_despine, g_add_args, g_ax_args)
+
 
 # ----------------------------------------------------------------------------------
 
