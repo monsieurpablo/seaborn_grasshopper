@@ -378,3 +378,22 @@ def count(data, x, hue, dodge, palette, fig_size, despine={}, add_args={}, ax_ar
     return base64img()
 
 # -----------------------
+
+def joint(data, x, y, hue, kind, palette, marginal_ticks, fig_size,  despine={}, add_args={}, ax_args={}):
+    # https://seaborn.pydata.org/generated/seaborn.jointplot.html#seaborn.jointplot
+
+    args = clean_args(locals())
+
+    g = sns.jointplot(**args, **add_args)
+    g.set(**ax_args)
+
+    if fig_size:
+        set_fig_size(g, fig_size)
+
+    if despine:
+        sns.despine(**despine)
+
+    # tight layout
+    plt.tight_layout()
+
+    return base64img()

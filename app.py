@@ -858,6 +858,46 @@ def count_df(csv_df1: str, x_ax, g_hue='', g_dodge=True, g_palette="deep", g_fig
     if plot:
         return all_graphs.count(the_dataframe, x_ax, g_hue, g_dodge, g_palette, g_fig_size, g_despine, g_add_args, g_ax_args)
 
+# create a new component for plotly joint plots
+@hops.component(
+    "/jointplot",
+    name="dataframes jointploter",
+    nickname="jointDF",
+    description="Jointplot a dataframe",
+    inputs=[
+        hs.HopsString("Dataframe", "df", "Dataframe to scatterplot"),
+        hs.HopsString("X axis", "x", "What's your X value?"),
+        hs.HopsString(
+            "Y axis", "y", "What's your Y value? Has to refer to numerical values"),
+        hs.HopsString(
+            "Hue", "hue", "Column value to differentiate X and Y with"),
+        hs.HopsString("Kind", "kind", '“scatter” | “kde” | “hist” | “hex” | “reg” | “resid” '),
+        hs.HopsString("Palette", "palette", "Seaborn palette for your graph."
+                      "\nInput a valid name or select one from the output of the 'preset' component"
+                      "\nDefault = 'deep'"),
+        hs.HopsString("Figure Size", "fig_size",
+                      "String 'width; height' in inches", default=''),
+        hs.HopsString("Despine", "despine",
+                      "Despine your graph. Choose from: 'True', 'False', 'left', 'right', 'top'", default='{}'),
+        hs.HopsString("Additional Arguments", "add_args",
+                      "Additional seaborn plot arguments passed as a JSON Object", default='{}'),
+        hs.HopsString("Axis Arguments", "ax_args",
+                      "Additional matplotlib axis  arguments passed as a JSON Object", default='{}'),
+        hs.HopsBoolean("Plot", "Plot", "Plot me!")
+    ],
+    outputs=[
+        hs.HopsString("Base64 png", "img_str", "Image as base64 bitmap."),
+    ]
+)
+def joint_df(csv_df1: str, x_ax, y_ax, g_hue='', g_kind='scatter', g_palette="deep", g_fig_size='', g_despine='{}', g_add_args='{}', g_ax_args='{}', plot: bool = False):
+    # load csv to df
+    the_dataframe = csv_to_df(csv_df1)
+    
+    g_despine, g_add_args, g_ax_args = json_parser(
+        g_despine, g_add_args, g_ax_args)
+    
+    if plot:
+        return all_graphs.joint(the_dataframe, x_ax, y_ax, g_hue, g_kind, g_palette, g_fig_size, g_despine, g_add_args, g_ax_args)
 
 # ----------------------------------------------------------------------------------
 
@@ -866,5 +906,3 @@ if __name__ == "__main__":
     # app.run(debug=False)
     port = int(os.environ.get("PORT", 5000))
     app.run(host='0.0.0.0', port=port, debug=False)
-
-    # app.run(host="0.0.0.0", port= 5000, debug=False)
