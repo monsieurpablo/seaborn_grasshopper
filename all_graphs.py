@@ -1,9 +1,12 @@
 import base64
 from matplotlib import pyplot as plt
+import pandas as pd
 import seaborn as sns
 import io
 import os
 
+# TODO: Change this later
+sns.set_style("ticks") # whitegrid, darkgrid, white, dark, ticks
 
 def base64img():
     # https://stackoverflow.com/questions/37225035/serialize-in-json-a-base64-encoded-data
@@ -15,8 +18,29 @@ def base64img():
     my_stringIObytes.seek(0)
     imdata_bytes = base64.b64encode(my_stringIObytes.read())
     imdata_string = imdata_bytes.decode('utf-8')
+
+    my_stringIObytes.flush()
+    
     return imdata_string
 
+
+def set_fig_size(g, fig_size):
+    w, h = fig_size.split(';')
+    # try:
+    g.figure.set_figwidth(float(w))
+    g.figure.set_figheight(float(h))
+    # except:
+        
+def check_numeric(df,column):
+    # try:
+    if pd.api.types.is_numeric_dtype(df[column]):
+        return True
+    else:
+        return False
+        # raise ValueError(f"{column} does not contain numbers")
+            
+    # except ValueError as e:
+    #     return e
 
 def empty2none(args):
     for k, v in args.items():
@@ -25,12 +49,6 @@ def empty2none(args):
         if type(v) == int:
             args[k] = None if v == -999 else v
     return args
-
-
-def set_fig_size(g, fig_size):
-    w, h = fig_size.split(';')
-    g.figure.set_figwidth(float(w))
-    g.figure.set_figheight(float(h))
 
 
 def clean_args(args):
@@ -42,6 +60,8 @@ def clean_args(args):
         pass
 
     args = empty2none(args)
+    
+    # TODO check if string represents tuple or list (eval) ?
 
     return args
 
@@ -375,3 +395,46 @@ def count(data, x, hue, dodge, palette, fig_size, despine={}, add_args={}, ax_ar
     return base64img()
 
 # -----------------------
+
+def joint(data, x, y, hue, kind, palette, fig_size,  despine={}, add_args={}, ax_args={}):
+    # https://seaborn.pydata.org/generated/seaborn.jointplot.html#seaborn.jointplot
+
+    args = clean_args(locals())
+    
+    # check that x and y columns are numeric 
+    if sum([check_numeric(data, x) for x in [x, y]]) != 2:
+        raise ValueError(f'x column "{x}" and y columns "{y}" must be numeric')
+    
+    g = sns.jointplot(**args, **add_args)
+    # g.set(**ax_args) # joint plot does not have an ax_args 
+
+    if fig_size:
+        set_fig_size(g, fig_size)
+  
+    if despine:
+        sns.despine(**despine)
+
+    # tight layout
+    plt.tight_layout()
+
+    return base64img()
+
+# -----------------------
+def pair(data, hue, vars, x_vars, y_vars, palette, kind, diag_kind, corner, fig_size, despine={}, add_args={}, ax_args={}):
+    # https://seaborn.pydata.org/generated/seaborn.pairplot.html#seaborn.pairplot
+
+    args = clean_args(locals())
+
+    g = sns.pairplot(**args, **add_args)
+    g.set(**ax_args)
+
+    if fig_size:
+        set_fig_size(g, fig_size)
+
+    if despine:
+        sns.despine(**despine)
+
+    # tight layout
+    plt.tight_layout()
+
+    return base64img()

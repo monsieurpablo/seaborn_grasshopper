@@ -1,4 +1,5 @@
 import io
+
 import pandas as pd
 
 
@@ -13,12 +14,18 @@ def clean_dict_datatype(a_dict: dict) -> dict:
 
             if str(current_elem).isdigit():
                 a_dict[key_index][elem] = int(current_elem)
-            elif current_elem.replace('.', '', 1).isdigit() and current_elem.count('.') < 2:
+            elif (
+                current_elem.replace(".", "", 1).isdigit()
+                and current_elem.count(".") < 2
+            ):
                 a_dict[key_index][elem] = float(current_elem)
-            elif current_elem == "True":    # Implicit conversion sometimes fails...
+            # check if string False -> bool
+            elif current_elem == "True":
                 a_dict[key_index][elem] = True
+            # check if string False -> bool
             elif current_elem == "False":
-                a_dict[key_index][elem] = False
+                a_dict[key_index][elem] = False   
+            # pass as string
             else:
                 a_dict[key_index][elem] = str(current_elem)
     return a_dict
@@ -43,7 +50,7 @@ def list_key_path(a_dict) -> list:
 
 def sub_lister(a_list, num) -> list:
     """partition the previously created list, depending of the branch level of the datatree"""
-    return [a_list[i:i + num] for i in range(0, len(a_list), num)]
+    return [a_list[i : i + num] for i in range(0, len(a_list), num)]
 
 
 def label_dict(nested_list: list, label: list) -> dict:
@@ -51,7 +58,9 @@ def label_dict(nested_list: list, label: list) -> dict:
     yolo_dict = {}
     for sub_list_index in range(len(nested_list)):
         key = label[sub_list_index]
-        yolo_dict[key] = [label[sub_list_index] + "_" + item for item in nested_list[sub_list_index]]
+        yolo_dict[key] = [
+            label[sub_list_index] + "_" + item for item in nested_list[sub_list_index]
+        ]
     return yolo_dict
 
 
@@ -83,5 +92,13 @@ def fix_one_item_list(a_df, data_type):
 def csv_to_df(df1):
     """load df from a csv, with special line-terminator"""
     buffer = io.StringIO(df1)
-    loaded_df1 = pd.read_csv(filepath_or_buffer=buffer, skipinitialspace=True, lineterminator='@')
-    return loaded_df1
+    df = pd.read_csv(
+        filepath_or_buffer=buffer, skipinitialspace=True, lineterminator="@"
+    )
+    df.columns = df.columns.str.lower()
+
+    if "date" in df.columns:
+        df["date"] = pd.to_datetime(df["date"], format="%d %b %H:%S")  # 01 Jan 00:00
+        df["date"] = df["date"] + pd.offsets.DateOffset(year=2020)
+
+    return df

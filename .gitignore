@@ -1,4 +1,5 @@
-﻿# Byte-compiled / optimized / DLL files
+﻿*gh.bak
+# Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
 *$py.class
@@ -159,3 +160,5 @@ cython_debug/
 #  option (not recommended) you can uncomment the following to ignore the entire idea folder.
 #.idea/
 .vercel
+
+examples/.DS_Store
