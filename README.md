@@ -83,13 +83,14 @@ waitress-serve --threads 6 --listen=*:5000 app:app
 
 This command starts the server and makes it available on the localhost at port 5000. The --threads flag specifies the number of threads to use and the --listen flag specifies the IP address and port to listen on.
 
-Now you can connect to the server in grasshopper by using the following url address [`http://127.0.0.1:5000/`](http://127.0.0.1:5000/)
-
 7. Connect to the server in Grasshopper
-   Use the the following URL address: http://127.0.0.1:5000/ in the panel asking for the server address.
 
-Congratulations!!!!! You can now connect to the server using the URL address provided and start using Seaborn with Grasshopper 3D.
+Use the the following URL address: http://127.0.0.1:5000/ in the panel asking for the server address.
 
-# Deployment
+> Congratulations!!!!! You can now connect to the server using the URL address provided and start using Seaborn with Grasshopper 3D.
 
-Follow [this tutorial](https://www.youtube.com/watch?v=SiCAIRc0pEI). The code is already set-up to work with Heroku.
+From now on you can start the server by running the command `waitress-serve --threads 6 --listen=*:5000 app:app` from the repository's folder.
+
+# Server Deployment
+
+Follow [this tutorial](https://www.youtube.com/watch?v=SiCAIRc0pEI). The code is already set-up to work with Render.
