@@ -1,0 +1,36 @@
+Grasshopper has lost responsiveness for more than 1 minute.
+An emergency save has been made.
+Problem might be caused by HopsComponent in Hops, Version=0.12.0.0, Culture=neutral, PublicKeyToken=null.
+
+A stack trace report is attached for diagnosis: 
+
+   at System.Threading.SynchronizationContext.WaitHelper(IntPtr[] waitHandles, Boolean waitAll, Int32 millisecondsTimeout)
+   at System.Windows.Threading.DispatcherSynchronizationContext.Wait(IntPtr[] waitHandles, Boolean waitAll, Int32 millisecondsTimeout)
+   at System.Threading.Monitor.ObjWait(Boolean exitContext, Int32 millisecondsTimeout, Object obj)
+   at System.Threading.ManualResetEventSlim.Wait(Int32 millisecondsTimeout, CancellationToken cancellationToken)
+   at System.Threading.Tasks.Task.SpinThenBlockingWait(Int32 millisecondsTimeout, CancellationToken cancellationToken)
+   at System.Threading.Tasks.Task.InternalWait(Int32 millisecondsTimeout, CancellationToken cancellationToken)
+   at System.Threading.Tasks.Task`1.GetResultCore(Boolean waitCompletionNotification)
+   at Hops.RemoteDefinition.GetPathType()
+   at Hops.RemoteDefinition.GetRemoteDescription()
+   at Hops.HopsComponent.DefineInputsAndOutputs()
+   at Hops.HopsComponent.set_RemoteDefinitionLocation(String value)
+   at Hops.HopsComponent.Read(GH_IReader reader)
+   at Grasshopper.Kernel.GH_Document.ReadObjectList(GH_IReader reader, String collection, List`1 plugins)
+   at Grasshopper.Kernel.GH_Document.Read(GH_IReader reader)
+   at GH_IO.Serialization.GH_Archive.ExtractObject(GH_ISerializable target, String targetName)
+   at Grasshopper.Kernel.GH_DocumentIO.OpenInternal(String filePath)
+   at Grasshopper.Kernel.GH_DocumentIO.Open(String filePath)
+   at Grasshopper.Kernel.GH_DocumentServer.AddDocument(String filepath, Boolean makeActive)
+   at Grasshopper.GUI.GH_DocumentEditor.ScriptAccess_OpenDocument(String filename)
+   at System.Windows.Forms.ToolStripItem.RaiseEvent(Object key, EventArgs e)
+   at System.Windows.Forms.ToolStripMenuItem.OnClick(EventArgs e)
+   at System.Windows.Forms.ToolStripItem.HandleClick(EventArgs e)
+   at System.Windows.Forms.ToolStripItem.HandleMouseUp(MouseEventArgs e)
+   at System.Windows.Forms.ToolStrip.OnMouseUp(MouseEventArgs mea)
+   at System.Windows.Forms.ToolStripDropDown.OnMouseUp(MouseEventArgs mea)
+   at System.Windows.Forms.Control.WmMouseUp(Message& m, MouseButtons button, Int32 clicks)
+   at System.Windows.Forms.Control.WndProc(Message& m)
+   at System.Windows.Forms.ToolStrip.WndProc(Message& m)
+   at System.Windows.Forms.ToolStripDropDown.WndProc(Message& m)
+   at System.Windows.Forms.NativeWindow.Callback(IntPtr hWnd, Int32 msg, IntPtr wparam, IntPtr lparam)
