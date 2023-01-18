@@ -50,7 +50,7 @@ cd seaborn_grasshopper
 
 This command will take you inside the repository's folder, where you will be able to access the files and folders required to run the server.
 
-1. Create a virtual environment with `Python 3.9` using `conda`
+3. Create a virtual environment with `Python 3.9` using `conda`
 
 ```bash
 conda create --name ghseaborn python=3.9
